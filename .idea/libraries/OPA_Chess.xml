@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="OPA-Chess">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/dist/OPA-Chess.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
