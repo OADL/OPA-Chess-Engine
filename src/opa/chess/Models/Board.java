@@ -1,7 +1,12 @@
-package opa.chess;
+package opa.chess.Models;
 
+import opa.chess.Config.CommonMethods;
+import opa.chess.Enums.Location;
+import opa.chess.Enums.PieceType;
+import opa.chess.Models.Pieces.*;
+
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.io.UnsupportedEncodingException;
 import java.io.PrintStream;
 
 public class Board {
@@ -16,105 +21,90 @@ public class Board {
         {" ", " ", " ", " ", " ", " ", " ", " "},
         {" ", " ", " ", " ", " ", " ", " ", " "}};
 
-    public ArrayList<Piece> pieces = new ArrayList<Piece>();
-    public ArrayList<Piece> dead = new ArrayList<Piece>();
+    public ArrayList<Piece> pieces = new ArrayList<>();
+    public ArrayList<Piece> dead = new ArrayList<>();
 
     public Board() {
-        board_init();
+        init();
     }
 
-    public Board boardcopy(Board b, Board temp_board) {
+    public Board copy(Board b, Board temp_board) {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 temp_board.board[i][j] = b.board[i][j];
             }
         }
         if (!b.pieces.isEmpty()) {
-            temp_board.pieces = new ArrayList<Piece>();
+            temp_board.pieces = new ArrayList<>();
             for (int i = 0; i < b.pieces.size(); i++) {
-                temp_board.pieces.add(new Piece("", false, false, 0, 0));
-                temp_board.pieces.get(i).set_color(b.pieces.get(i).get_color());
-                temp_board.pieces.get(i).set_firstmove(b.pieces.get(i).get_firstmove());
-                temp_board.pieces.get(i).set_location(b.pieces.get(i).get_location());
-                temp_board.pieces.get(i).set_x(b.pieces.get(i).get_x());
-                temp_board.pieces.get(i).set_y(b.pieces.get(i).get_y());
-                temp_board.pieces.get(i).set_type(b.pieces.get(i).get_type());
+                temp_board.pieces.add(b.pieces.get(i).clone());
             }
         }
         if (!b.dead.isEmpty()) {
-            temp_board.dead = new ArrayList<Piece>();
+            temp_board.dead = new ArrayList<>();
             for (int i = 0; i < b.dead.size(); i++) {
-                temp_board.dead.add(new Piece("", false, false, 0, 0));
-                temp_board.dead.get(i).set_color(b.dead.get(i).get_color());
-                temp_board.dead.get(i).set_firstmove(b.dead.get(i).get_firstmove());
-                temp_board.dead.get(i).set_location(b.dead.get(i).get_location());
-                temp_board.dead.get(i).set_x(b.dead.get(i).get_x());
-                temp_board.dead.get(i).set_y(b.dead.get(i).get_y());
-                temp_board.dead.get(i).set_type(b.dead.get(i).get_type());
+                temp_board.dead.add(b.dead.get(i).clone());
             }
         }
-        temp_board.update_board();
+        temp_board.update();
         return temp_board;
     }
 
-    private void board_init() {
+    private void init() {
         for (int i = 0; i < 8; i++) {
-            Piece pawn = new Piece("Pawn", false, false, i, 6);//down
+            Piece pawn = new Pawn(Location.DOWN, false, i, 6);//down
             pieces.add(pawn);
-            pawn = new Piece("Pawn", true, true, i, 1);//up
+            pawn = new Pawn(Location.UP, true, i, 1);//up
             pieces.add(pawn);
         }
-        for (int i = 0; i < 2; i++) {
-            Piece piece;
-            if (i == 0) {
-                piece = new Piece("Bishop", true, true, 2, 0);//up
-                pieces.add(piece);
-                piece = new Piece("Bishop", true, true, 5, 0);
-                pieces.add(piece);
-                piece = new Piece("Knight", true, true, 1, 0);
-                pieces.add(piece);
-                piece = new Piece("Knight", true, true, 6, 0);
-                pieces.add(piece);
-                piece = new Piece("Rook", true, true, 0, 0);
-                pieces.add(piece);
-                piece = new Piece("Rook", true, true, 7, 0);
-                pieces.add(piece);
-                piece = new Piece("Queen", true, true, 3, 0);
-                pieces.add(piece);
-                piece = new Piece("King", true, true, 4, 0);
-                pieces.add(piece);
-            }
-            if (i == 1) {
-                piece = new Piece("Bishop", false, false, 2, 7);//down
-                pieces.add(piece);
-                piece = new Piece("Bishop", false, false, 5, 7);
-                pieces.add(piece);
-                piece = new Piece("Knight", false, false, 1, 7);
-                pieces.add(piece);
-                piece = new Piece("Knight", false, false, 6, 7);
-                pieces.add(piece);
-                piece = new Piece("Rook", false, false, 0, 7);
-                pieces.add(piece);
-                piece = new Piece("Rook", false, false, 7, 7);
-                pieces.add(piece);
-                piece = new Piece("Queen", false, false, 3, 7);
-                pieces.add(piece);
-                piece = new Piece("King", false, false, 4, 7);
-                pieces.add(piece);
-            }
-        }
-        update_board();
+        Piece piece;
+        //up
+        piece = new Bishop(Location.UP, true, 2, 0);
+        pieces.add(piece);
+        piece = new Bishop(Location.UP, true, 5, 0);
+        pieces.add(piece);
+        piece = new Knight(Location.UP, true, 1, 0);
+        pieces.add(piece);
+        piece = new Knight(Location.UP, true, 6, 0);
+        pieces.add(piece);
+        piece = new Rook(Location.UP, true, 0, 0);
+        pieces.add(piece);
+        piece = new Rook(Location.UP, true, 7, 0);
+        pieces.add(piece);
+        piece = new Queen(Location.UP, true, 3, 0);
+        pieces.add(piece);
+        piece = new King(Location.UP, true, 4, 0);
+        pieces.add(piece);
+
+        //down
+        piece = new Bishop(Location.DOWN, false, 2, 7);
+        pieces.add(piece);
+        piece = new Bishop(Location.DOWN, false, 5, 7);
+        pieces.add(piece);
+        piece = new Knight(Location.DOWN, false, 1, 7);
+        pieces.add(piece);
+        piece = new Knight(Location.DOWN, false, 6, 7);
+        pieces.add(piece);
+        piece =new Rook(Location.DOWN, false, 0, 7);
+        pieces.add(piece);
+        piece =new Rook(Location.DOWN, false, 7, 7);
+        pieces.add(piece);
+        piece = new Queen(Location.DOWN, false, 3, 7);
+        pieces.add(piece);
+        piece = new King(Location.DOWN, false, 4, 7);
+        pieces.add(piece);
+        update();
     }
 
-    void print_board() throws UnsupportedEncodingException {
-        PrintStream oo = new PrintStream(System.out, true, "UTF-8");
+    public void print() {
+        PrintStream printStream = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         System.out.println("===================================");
 
         for (int i = 0; i < 8; i++) {
             System.out.print("| ");
             for (int j = 0; j < 8; j++) {
                 String s = board[j][i];
-                oo.print(s);
+                printStream.print(s);
                 if (j < 7) {
                     System.out.print(" : ");
                 }
@@ -124,7 +114,7 @@ public class Board {
         System.out.println("  a   b   c   d   e   f   g   h");
     }
 
-    public boolean apply_move(String move) {
+    public boolean applyMove(String move) {
         if (move == null || move.length() < 4) {
             return false;
         }
@@ -141,41 +131,41 @@ public class Board {
         ArrayList<Piece> temp_pieces = (ArrayList<Piece>) pieces.clone(); // temporary changes array list
         @SuppressWarnings("unchecked")
         ArrayList<Piece> temp_dead = (ArrayList<Piece>) dead.clone();// temporary changes array list
-        Piece piece = CommonMethods.get_piece_on_square(X1, Y1, temp_pieces);
+        Piece piece = CommonMethods.getPieceOnSquare(X1, Y1, temp_pieces);
         if (piece == null) {
             return false;
         }
         if (move.length() == 4) {
-            if (piece.get_type() == "Pawn" && (((piece.get_location() == false) && Y2 == 0) || ((piece.get_location() == true) && Y2 == 7))) {//reach end of board without promotion
+            if (piece.getType() == PieceType.PAWN && (((piece.getLocation()==Location.DOWN) && Y2 == 0) || ((piece.getLocation()==Location.UP) && Y2 == 7))) {//reach end of board without promotion
                 return false;
             }
-            if ((piece.get_color() == false && CommonMethods.player == 1) || (piece.get_color() == true && CommonMethods.player == 2)) {
-                if (piece.check_move(X2, Y2, temp_pieces)) {
-                    if (piece.get_firstmove()) {
-                        if (piece.get_type() == "King") {
+            if ((!piece.getColor() && CommonMethods.player == 1) || (piece.getColor() && CommonMethods.player == 2)) {
+                if (piece.checkMove(X2, Y2, temp_pieces)) {
+                    if (piece.isFirstMove()) {
+                        if (piece.getType() == PieceType.KING) {
                             if (CommonMethods.castling) {//check castling variable
-                                int rookX = X2 > piece.get_x() ? 7 : 0;//get rook's location
-                                Piece rook = CommonMethods.get_piece_on_square(rookX, Y2, temp_pieces);
+                                int rookX = X2 > piece.getX() ? 7 : 0;//get rook's location
+                                Piece rook = CommonMethods.getPieceOnSquare(rookX, Y2, temp_pieces);
                                 Board temp_board = new Board();
-                                temp_board = boardcopy(this, temp_board);
-                                Piece temp_king = CommonMethods.get_piece_on_square(X1, Y1, temp_board.pieces);
+                                temp_board = copy(this,temp_board);
+                                Piece temp_king = CommonMethods.getPieceOnSquare(X1, Y1, temp_board.pieces);
                                 boolean temp_castl = CommonMethods.castling;
                                 boolean temp_enpassant = CommonMethods.en_passant;
                                 if (rookX == 7) {
                                     for (int i = X1; i < rookX; i++) {
                                         CommonMethods.castling = temp_castl;
                                         CommonMethods.en_passant = temp_enpassant;
-                                        temp_king.set_x(i);
-                                        if (king_risked(temp_king, temp_pieces)) {
+                                        temp_king.setX(i);
+                                        if (kingRisked(temp_king, temp_pieces)) {
                                             return false;
                                         }
                                     }
-                                } else if (rookX == 0) {
+                                } else {
                                     for (int i = X1; i > rookX; i--) {
                                         CommonMethods.castling = temp_castl;
                                         CommonMethods.en_passant = temp_enpassant;
-                                        temp_king.set_x(i);
-                                        if (king_risked(temp_king, temp_pieces)) {
+                                        temp_king.setX(i);
+                                        if (kingRisked(temp_king, temp_pieces)) {
                                             return false;
                                         }
                                     }
@@ -184,65 +174,65 @@ public class Board {
                                 }
                                 if (rook != null) {
                                     int rooknewX = rookX > 0 ? 5 : 3;
-                                    rook.set_x(rooknewX);
-                                    rook.set_y(Y2);
+                                    rook.setX(rooknewX);
+                                    rook.setY(Y2);
                                     CommonMethods.castling = false;
                                 }
                             }
                         }
-                        piece.set_firstmove(false);
+                        piece.setFirstMove(false);
                     }
                     Piece deadpiece;
-                    if (Math.abs(X1 - X2) == 1 && CommonMethods.en_passant == true) {
-                        piece.set_x(X2);
-                        piece.set_y(Y2);
-                        deadpiece = CommonMethods.get_piece_on_square(X2, Y1, temp_pieces);
+                    if (Math.abs(X1 - X2) == 1 && CommonMethods.en_passant) {
+                        piece.setX(X2);
+                        piece.setY(Y2);
+                        deadpiece = CommonMethods.getPieceOnSquare(X2, Y1, temp_pieces);
                         CommonMethods.en_passant = false;
                         if (deadpiece != null) {
-                            apply_eat(deadpiece, temp_pieces, temp_dead);
+                            applyEat(deadpiece, temp_pieces, temp_dead);
                         }
                         if (CommonMethods.player == 1) {
                             CommonMethods.player = 2;
                         } else {
                             CommonMethods.player = 1;
                         }
-                        if (king_risked(CommonMethods.get_piece_on_square("King", piece.get_color(), temp_pieces), temp_pieces)) {
+                        if (kingRisked(CommonMethods.getPieceOnSquare(PieceType.KING, piece.getColor(), temp_pieces), temp_pieces)) {
                             return false;
-                        } else if (king_risked(CommonMethods.get_piece_on_square("King", !(piece.get_color()), temp_pieces), temp_pieces)) {
-                            if (piece.get_color() == true) {
+                        } else if (kingRisked(CommonMethods.getPieceOnSquare(PieceType.KING, !(piece.getColor()), temp_pieces), temp_pieces)) {
+                            if (piece.getColor()) {
                                 CommonMethods.white_king_checked = true;
                             } else {
                                 CommonMethods.black_king_checked = true;
                             }
                         }
-                        if (piece.get_color() == false) {
+                        if (!piece.getColor()) {
                             CommonMethods.white_king_checked = false;
                         } else {
                             CommonMethods.black_king_checked = false;
                         }
                         pieces = temp_pieces;
                         dead = temp_dead;
-                        update_board();
+                        update();
 
                         return true;
 
                     } else {
-                        deadpiece = piece.can_eat(X2, Y2, temp_pieces);
-                        piece.set_x(X2);
-                        piece.set_y(Y2);
+                        deadpiece = piece.canEat(X2, Y2, temp_pieces);
+                        piece.setX(X2);
+                        piece.setY(Y2);
                         if (deadpiece != null) {
-                            apply_eat(deadpiece, temp_pieces, temp_dead);
+                            applyEat(deadpiece, temp_pieces, temp_dead);
                         }
-                        if (king_risked(CommonMethods.get_piece_on_square("King", piece.get_color(), temp_pieces), temp_pieces)) {
+                        if (kingRisked(CommonMethods.getPieceOnSquare(PieceType.KING, piece.getColor(), temp_pieces), temp_pieces)) {
                             return false;
-                        } else if (king_risked(CommonMethods.get_piece_on_square("King", !(piece.get_color()), temp_pieces), temp_pieces)) {
-                            if (piece.get_color() == true) {
+                        } else if (kingRisked(CommonMethods.getPieceOnSquare(PieceType.KING, !(piece.getColor()), temp_pieces), temp_pieces)) {
+                            if (piece.getColor()) {
                                 CommonMethods.white_king_checked = true;
                             } else {
                                 CommonMethods.black_king_checked = true;
                             }
                         }
-                        if (piece.get_color() == false) {
+                        if (!piece.getColor()) {
                             CommonMethods.white_king_checked = false;
                         } else {
                             CommonMethods.black_king_checked = false;
@@ -254,16 +244,16 @@ public class Board {
                         }
                         pieces = temp_pieces;
                         dead = temp_dead;
-                        update_board();
+                        update();
                         return true;
                     }
                 }
             }
         } else if (move.length() == 5) {
             char p = move.charAt(4);
-            if ((piece.get_color() == false && CommonMethods.player == 1) || (piece.get_color() == true && CommonMethods.player == 2)) {
-                if (piece.get_type() == "Pawn") {
-                    if (piece.check_move(X2, Y2, temp_pieces)) {
+            if ((!piece.getColor() && CommonMethods.player == 1) || (piece.getColor() && CommonMethods.player == 2)) {
+                if (piece.getType() == PieceType.PAWN) {
+                    if (piece.checkMove(X2, Y2, temp_pieces)) {
                         if (Y2 == 0 || Y2 == 7) {
                             switch (p) {
                                 case 'p':
@@ -273,37 +263,37 @@ public class Board {
                                     return false;
                                 case 'q':
                                 case 'Q':
-                                    piece.set_type("Queen");
+                                    piece.setType(PieceType.QUEEN);
                                     break;
                                 case 'r':
                                 case 'R':
-                                    piece.set_type("Rook");
+                                    piece.setType(PieceType.ROOK);
                                     break;
                                 case 'n':
                                 case 'N':
-                                    piece.set_type("Knight");
+                                    piece.setType(PieceType.KNIGHT);
                                     break;
                                 case 'b':
                                 case 'B':
-                                    piece.set_type("Bishop");
+                                    piece.setType(PieceType.BISHOP);
                                     break;
                             }
-                            Piece deadpiece = piece.can_eat(X2, Y2, temp_pieces);
+                            Piece deadpiece = piece.canEat(X2, Y2, temp_pieces);
                             if (deadpiece != null) {
-                                apply_eat(deadpiece, temp_pieces, temp_dead);
+                                applyEat(deadpiece, temp_pieces, temp_dead);
                             }
-                            piece.set_x(X2);
-                            piece.set_y(Y2);
-                            if (king_risked(CommonMethods.get_piece_on_square("King", piece.get_color(), temp_pieces), temp_pieces)) {
+                            piece.setX(X2);
+                            piece.setY(Y2);
+                            if (kingRisked(CommonMethods.getPieceOnSquare(PieceType.KING, piece.getColor(), temp_pieces), temp_pieces)) {
                                 return false;
-                            } else if (king_risked(CommonMethods.get_piece_on_square("King", !(piece.get_color()), temp_pieces), temp_pieces)) {
-                                if (piece.get_color() == true) {
+                            } else if (kingRisked(CommonMethods.getPieceOnSquare(PieceType.KING, !(piece.getColor()), temp_pieces), temp_pieces)) {
+                                if (piece.getColor()) {
                                     CommonMethods.white_king_checked = true;
                                 } else {
                                     CommonMethods.black_king_checked = true;
                                 }
                             }
-                            if (piece.get_color() == false) {
+                            if (!piece.getColor()) {
                                 CommonMethods.white_king_checked = false;
                             } else {
                                 CommonMethods.black_king_checked = false;
@@ -315,7 +305,7 @@ public class Board {
                             }
                             pieces = temp_pieces;
                             dead = temp_dead;
-                            update_board();
+                            update();
                             return true;
                         }
                     }
@@ -326,14 +316,14 @@ public class Board {
         return false;
     }
 
-    public void apply_eat(Piece deadpiece, ArrayList<Piece> temp_pieces, ArrayList<Piece> temp_dead) {
+    public void applyEat(Piece deadpiece, ArrayList<Piece> temp_pieces, ArrayList<Piece> temp_dead) {
         temp_pieces.remove(deadpiece);
-        deadpiece.set_y(-1);
-        deadpiece.set_x(-1);
+        deadpiece.setY(-1);
+        deadpiece.setX(-1);
         temp_dead.add(deadpiece);
     }
 
-    private void update_board() {
+    private void update() {
         board = new String[][]{
             {" ", " ", " ", " ", " ", " ", " ", " "},
             {" ", " ", " ", " ", " ", " ", " ", " "},
@@ -344,48 +334,48 @@ public class Board {
             {" ", " ", " ", " ", " ", " ", " ", " "},
             {" ", " ", " ", " ", " ", " ", " ", " "}};
         for (int i = 0; i < pieces.size(); i++) {
-            String name = pieces.get(i).get_type();
-            int X = pieces.get(i).get_x();
-            int Y = pieces.get(i).get_y();
-            if (pieces.get(i).get_color() == false) {
-                switch (name) {
-                    case "Pawn":
+            PieceType type = pieces.get(i).getType();
+            int X = pieces.get(i).getX();
+            int Y = pieces.get(i).getY();
+            if (!pieces.get(i).getColor()) {
+                switch (type) {
+                    case PAWN:
                         board[X][Y] = "\u265F";
                         break;
-                    case "Bishop":
+                    case BISHOP:
                         board[X][Y] = "\u265D";
                         break;
-                    case "Rook":
+                    case ROOK:
                         board[X][Y] = "\u265C";
                         break;
-                    case "Knight":
+                    case KNIGHT:
                         board[X][Y] = "\u265E";
                         break;
-                    case "Queen":
+                    case QUEEN:
                         board[X][Y] = "\u265B";
                         break;
-                    case "King":
+                    case KING:
                         board[X][Y] = "\u265A";
                         break;
                 }
             } else {
-                switch (name) {
-                    case "Pawn":
+                switch (type) {
+                    case PAWN:
                         board[X][Y] = "\u2659";
                         break;
-                    case "Bishop":
+                    case BISHOP:
                         board[X][Y] = "\u2657";
                         break;
-                    case "Rook":
+                    case ROOK:
                         board[X][Y] = "\u2656";
                         break;
-                    case "Knight":
+                    case KNIGHT:
                         board[X][Y] = "\u2658";
                         break;
-                    case "Queen":
+                    case QUEEN:
                         board[X][Y] = "\u2655";
                         break;
-                    case "King":
+                    case KING:
                         board[X][Y] = "\u2654";
                         break;
                 }
@@ -394,23 +384,20 @@ public class Board {
         }
     }
 
-    private boolean king_risked(Piece king, ArrayList<Piece> temp_pieces) {
-
+    private boolean kingRisked(Piece king, ArrayList<Piece> temp_pieces) {
         for (int i = 0; i < temp_pieces.size(); i++) {
-            if (temp_pieces.get(i).get_color() == king.get_color()) {
-                continue;
-            } else if (temp_pieces.get(i).check_move(king.get_x(), king.get_y(), temp_pieces)) {
+            if (temp_pieces.get(i).getColor() != king.getColor() && temp_pieces.get(i).checkMove(king.getX(), king.getY(), temp_pieces)) {
                 return true;
             }
         }
         return false;
     }
 
-    public ArrayList<String> next_moves(int player) {
-        ArrayList<String> moves = new ArrayList<String>();
+    public ArrayList<String> nextMoves(int player) {
+        ArrayList<String> moves = new ArrayList<>();
         @SuppressWarnings("unchecked")
         Board temp_board = new Board();
-        temp_board = boardcopy(this, temp_board);
+        temp_board = copy(this,temp_board);
         int temp_player = CommonMethods.player;
         boolean temp_castl = CommonMethods.castling;
         boolean temp_en_pt = CommonMethods.en_passant;
@@ -418,30 +405,30 @@ public class Board {
         boolean temp_w_b_c = CommonMethods.black_king_checked;
         for (int i = 0; i < temp_board.pieces.size(); i++) {
             Piece p = temp_board.pieces.get(i);
-            int x = p.get_x();
-            int y = p.get_y();
+            int x = p.getX();
+            int y = p.getY();
             int temp_x;
             int temp_y;
-            if ((player == 1 && p.get_color() == false) || (player == 2 && p.get_color() == true)) {
-                switch (p.get_type()) {
-                    case "Pawn":
-                        if (p.get_color() == false) {
+            if ((player == 1 && !p.getColor()) || (player == 2 && p.getColor())) {
+                switch (p.getType()) {
+                    case PAWN:
+                        if (!p.getColor()) {
                             CommonMethods.player = temp_player;
                             CommonMethods.en_passant = temp_en_pt;
                             CommonMethods.castling = temp_castl;
                             CommonMethods.white_king_checked = temp_w_k_c;
                             CommonMethods.black_king_checked = temp_w_b_c;
-                            temp_board = boardcopy(this, temp_board);
+                            temp_board = copy(this,temp_board);
                             temp_y = y - 1;
                             if (temp_y == 0) {
-                                String s = CommonMethods.rev_convert(x, y, x, temp_y) + 'q';
-                                if (temp_board.apply_move(s)) {
+                                String s = CommonMethods.reverseConvert(x, y, x, temp_y) + 'q';
+                                if (temp_board.applyMove(s)) {
                                     moves.add(s);
-                                    s = CommonMethods.rev_convert(x, y, x, temp_y) + 'n';
+                                    s = CommonMethods.reverseConvert(x, y, x, temp_y) + 'n';
                                     moves.add(s);
-                                    s = CommonMethods.rev_convert(x, y, x, temp_y) + 'b';
+                                    s = CommonMethods.reverseConvert(x, y, x, temp_y) + 'b';
                                     moves.add(s);
-                                    s = CommonMethods.rev_convert(x, y, x, temp_y) + 'r';
+                                    s = CommonMethods.reverseConvert(x, y, x, temp_y) + 'r';
                                     moves.add(s);
                                 }
                             }
@@ -450,18 +437,18 @@ public class Board {
                             CommonMethods.castling = temp_castl;
                             CommonMethods.white_king_checked = temp_w_k_c;
                             CommonMethods.black_king_checked = temp_w_b_c;
-                            temp_board = boardcopy(this, temp_board);
+                            temp_board = copy(this,temp_board);
                             temp_y = y - 1;
                             temp_x = x - 1;
                             if (temp_y == 0) {
-                                String s = CommonMethods.rev_convert(x, y, temp_x, temp_y) + 'q';
-                                if (temp_board.apply_move(s)) {
+                                String s = CommonMethods.reverseConvert(x, y, temp_x, temp_y) + 'q';
+                                if (temp_board.applyMove(s)) {
                                     moves.add(s);
-                                    s = CommonMethods.rev_convert(x, y, temp_x, temp_y) + 'n';
+                                    s = CommonMethods.reverseConvert(x, y, temp_x, temp_y) + 'n';
                                     moves.add(s);
-                                    s = CommonMethods.rev_convert(x, y, temp_x, temp_y) + 'b';
+                                    s = CommonMethods.reverseConvert(x, y, temp_x, temp_y) + 'b';
                                     moves.add(s);
-                                    s = CommonMethods.rev_convert(x, y, temp_x, temp_y) + 'r';
+                                    s = CommonMethods.reverseConvert(x, y, temp_x, temp_y) + 'r';
                                     moves.add(s);
                                 }
                             }
@@ -470,18 +457,18 @@ public class Board {
                             CommonMethods.castling = temp_castl;
                             CommonMethods.white_king_checked = temp_w_k_c;
                             CommonMethods.black_king_checked = temp_w_b_c;
-                            temp_board = boardcopy(this, temp_board);
+                            temp_board = copy(this,temp_board);
                             temp_y = y - 1;
                             temp_x = x + 1;
                             if (temp_y == 0) {
-                                String s = CommonMethods.rev_convert(x, y, temp_x, temp_y) + 'q';
-                                if (temp_board.apply_move(s)) {
+                                String s = CommonMethods.reverseConvert(x, y, temp_x, temp_y) + 'q';
+                                if (temp_board.applyMove(s)) {
                                     moves.add(s);
-                                    s = CommonMethods.rev_convert(x, y, temp_x, temp_y) + 'n';
+                                    s = CommonMethods.reverseConvert(x, y, temp_x, temp_y) + 'n';
                                     moves.add(s);
-                                    s = CommonMethods.rev_convert(x, y, temp_x, temp_y) + 'b';
+                                    s = CommonMethods.reverseConvert(x, y, temp_x, temp_y) + 'b';
                                     moves.add(s);
-                                    s = CommonMethods.rev_convert(x, y, temp_x, temp_y) + 'r';
+                                    s = CommonMethods.reverseConvert(x, y, temp_x, temp_y) + 'r';
                                     moves.add(s);
                                 }
                             }
@@ -490,41 +477,41 @@ public class Board {
                             CommonMethods.castling = temp_castl;
                             CommonMethods.white_king_checked = temp_w_k_c;
                             CommonMethods.black_king_checked = temp_w_b_c;
-                            temp_board = boardcopy(this, temp_board);
-                            if (temp_y != 0 && temp_board.apply_move(CommonMethods.rev_convert(x, y, x, temp_y))) {
-                                moves.add(CommonMethods.rev_convert(x, y, x, temp_y));
+                            temp_board = copy(this,temp_board);
+                            if (temp_y != 0 && temp_board.applyMove(CommonMethods.reverseConvert(x, y, x, temp_y))) {
+                                moves.add(CommonMethods.reverseConvert(x, y, x, temp_y));
                             }
                             CommonMethods.player = temp_player;
                             CommonMethods.en_passant = temp_en_pt;
                             CommonMethods.castling = temp_castl;
                             CommonMethods.white_king_checked = temp_w_k_c;
                             CommonMethods.black_king_checked = temp_w_b_c;
-                            temp_board = boardcopy(this, temp_board);
+                            temp_board = copy(this,temp_board);
                             temp_y = y - 2;
-                            if (temp_board.apply_move(CommonMethods.rev_convert(x, y, x, temp_y))) {
-                                moves.add(CommonMethods.rev_convert(x, y, x, temp_y));
+                            if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, x, temp_y))) {
+                                moves.add(CommonMethods.reverseConvert(x, y, x, temp_y));
                             }
                             CommonMethods.player = temp_player;
                             CommonMethods.en_passant = temp_en_pt;
                             CommonMethods.castling = temp_castl;
                             CommonMethods.white_king_checked = temp_w_k_c;
                             CommonMethods.black_king_checked = temp_w_b_c;
-                            temp_board = boardcopy(this, temp_board);
+                            temp_board = copy(this,temp_board);
                             temp_y = y - 1;
                             temp_x = x - 1;
-                            if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                                moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                            if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                                moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                             }
                             CommonMethods.player = temp_player;
                             CommonMethods.en_passant = temp_en_pt;
                             CommonMethods.castling = temp_castl;
                             CommonMethods.white_king_checked = temp_w_k_c;
                             CommonMethods.black_king_checked = temp_w_b_c;
-                            temp_board = boardcopy(this, temp_board);
+                            temp_board = copy(this,temp_board);
                             temp_y = y - 1;
                             temp_x = x + 1;
-                            if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                                moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                            if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                                moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                             }
                         } else {
                             CommonMethods.player = temp_player;
@@ -532,17 +519,17 @@ public class Board {
                             CommonMethods.castling = temp_castl;
                             CommonMethods.white_king_checked = temp_w_k_c;
                             CommonMethods.black_king_checked = temp_w_b_c;
-                            temp_board = boardcopy(this, temp_board);
+                            temp_board = copy(this,temp_board);
                             temp_y = y + 1;
                             if (temp_y == 7) {
-                                String s = CommonMethods.rev_convert(x, y, x, temp_y) + 'q';
-                                if (temp_board.apply_move(s)) {
+                                String s = CommonMethods.reverseConvert(x, y, x, temp_y) + 'q';
+                                if (temp_board.applyMove(s)) {
                                     moves.add(s);
-                                    s = CommonMethods.rev_convert(x, y, x, temp_y) + 'n';
+                                    s = CommonMethods.reverseConvert(x, y, x, temp_y) + 'n';
                                     moves.add(s);
-                                    s = CommonMethods.rev_convert(x, y, x, temp_y) + 'b';
+                                    s = CommonMethods.reverseConvert(x, y, x, temp_y) + 'b';
                                     moves.add(s);
-                                    s = CommonMethods.rev_convert(x, y, x, temp_y) + 'r';
+                                    s = CommonMethods.reverseConvert(x, y, x, temp_y) + 'r';
                                     moves.add(s);
                                 }
                             }
@@ -551,45 +538,45 @@ public class Board {
                             CommonMethods.castling = temp_castl;
                             CommonMethods.white_king_checked = temp_w_k_c;
                             CommonMethods.black_king_checked = temp_w_b_c;
-                            temp_board = boardcopy(this, temp_board);
-                            if (temp_y != 7 && temp_board.apply_move(CommonMethods.rev_convert(x, y, x, temp_y))) {
-                                moves.add(CommonMethods.rev_convert(x, y, x, temp_y));
+                            temp_board = copy(this,temp_board);
+                            if (temp_y != 7 && temp_board.applyMove(CommonMethods.reverseConvert(x, y, x, temp_y))) {
+                                moves.add(CommonMethods.reverseConvert(x, y, x, temp_y));
                             }
                             CommonMethods.player = temp_player;
                             CommonMethods.en_passant = temp_en_pt;
                             CommonMethods.castling = temp_castl;
                             CommonMethods.white_king_checked = temp_w_k_c;
                             CommonMethods.black_king_checked = temp_w_b_c;
-                            temp_board = boardcopy(this, temp_board);
+                            temp_board = copy(this,temp_board);
                             temp_y = y + 2;
-                            if (temp_board.apply_move(CommonMethods.rev_convert(x, y, x, temp_y))) {
-                                moves.add(CommonMethods.rev_convert(x, y, x, temp_y));
+                            if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, x, temp_y))) {
+                                moves.add(CommonMethods.reverseConvert(x, y, x, temp_y));
                             }
                             CommonMethods.player = temp_player;
                             CommonMethods.en_passant = temp_en_pt;
                             CommonMethods.castling = temp_castl;
                             CommonMethods.white_king_checked = temp_w_k_c;
                             CommonMethods.black_king_checked = temp_w_b_c;
-                            temp_board = boardcopy(this, temp_board);
+                            temp_board = copy(this,temp_board);
                             temp_y = y + 1;
                             temp_x = x - 1;
-                            if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                                moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                            if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                                moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                             }
                             CommonMethods.player = temp_player;
                             CommonMethods.en_passant = temp_en_pt;
                             CommonMethods.castling = temp_castl;
                             CommonMethods.white_king_checked = temp_w_k_c;
                             CommonMethods.black_king_checked = temp_w_b_c;
-                            temp_board = boardcopy(this, temp_board);
+                            temp_board = copy(this,temp_board);
                             temp_y = y + 1;
                             temp_x = x + 1;
-                            if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                                moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                            if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                                moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                             }
                         }
                         break;
-                    case "Rook":
+                    case ROOK:
                         temp_x = x - 1;
                         while (true) {
                             if (temp_x <= -1) {
@@ -602,9 +589,9 @@ public class Board {
                                 CommonMethods.castling = temp_castl;
                                 CommonMethods.white_king_checked = temp_w_k_c;
                                 CommonMethods.black_king_checked = temp_w_b_c;
-                                temp_board = boardcopy(this, temp_board);
-                                if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, y))) {
-                                    moves.add(CommonMethods.rev_convert(x, y, temp_x, y));
+                                temp_board = copy(this,temp_board);
+                                if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, y))) {
+                                    moves.add(CommonMethods.reverseConvert(x, y, temp_x, y));
                                 }
                                 temp_x--;
                             } else if (temp_x > x) {
@@ -612,9 +599,9 @@ public class Board {
                                 CommonMethods.castling = temp_castl;
                                 CommonMethods.white_king_checked = temp_w_k_c;
                                 CommonMethods.black_king_checked = temp_w_b_c;
-                                temp_board = boardcopy(this, temp_board);
-                                if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, y))) {
-                                    moves.add(CommonMethods.rev_convert(x, y, temp_x, y));
+                                temp_board = copy(this,temp_board);
+                                if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, y))) {
+                                    moves.add(CommonMethods.reverseConvert(x, y, temp_x, y));
                                 }
                                 temp_x++;
                             }
@@ -631,9 +618,9 @@ public class Board {
                                 CommonMethods.castling = temp_castl;
                                 CommonMethods.white_king_checked = temp_w_k_c;
                                 CommonMethods.black_king_checked = temp_w_b_c;
-                                temp_board = boardcopy(this, temp_board);
-                                if (temp_board.apply_move(CommonMethods.rev_convert(x, y, x, temp_y))) {
-                                    moves.add(CommonMethods.rev_convert(x, y, x, temp_y));
+                                temp_board = copy(this,temp_board);
+                                if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, x, temp_y))) {
+                                    moves.add(CommonMethods.reverseConvert(x, y, x, temp_y));
                                 }
                                 temp_y--;
                             } else if (temp_y > y) {
@@ -641,15 +628,15 @@ public class Board {
                                 CommonMethods.castling = temp_castl;
                                 CommonMethods.white_king_checked = temp_w_k_c;
                                 CommonMethods.black_king_checked = temp_w_b_c;
-                                temp_board = boardcopy(this, temp_board);
-                                if (temp_board.apply_move(CommonMethods.rev_convert(x, y, x, temp_y))) {
-                                    moves.add(CommonMethods.rev_convert(x, y, x, temp_y));
+                                temp_board = copy(this,temp_board);
+                                if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, x, temp_y))) {
+                                    moves.add(CommonMethods.reverseConvert(x, y, x, temp_y));
                                 }
                                 temp_y++;
                             }
                         }
                         break;
-                    case "Bishop":
+                    case BISHOP:
                         temp_x = x - 1;
                         temp_y = y - 1;
                         while (true) {
@@ -664,9 +651,9 @@ public class Board {
                                 CommonMethods.castling = temp_castl;
                                 CommonMethods.white_king_checked = temp_w_k_c;
                                 CommonMethods.black_king_checked = temp_w_b_c;
-                                temp_board = boardcopy(this, temp_board);
-                                if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                                    moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                                temp_board = copy(this,temp_board);
+                                if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                                    moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                                     
                                 }
                                 temp_x--;
@@ -676,9 +663,9 @@ public class Board {
                                 CommonMethods.castling = temp_castl;
                                 CommonMethods.white_king_checked = temp_w_k_c;
                                 CommonMethods.black_king_checked = temp_w_b_c;
-                                temp_board = boardcopy(this, temp_board);
-                                if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                                    moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                                temp_board = copy(this,temp_board);
+                                if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                                    moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                                 }
                                 temp_x++;
                                 temp_y++;
@@ -698,9 +685,9 @@ public class Board {
                                 CommonMethods.castling = temp_castl;
                                 CommonMethods.white_king_checked = temp_w_k_c;
                                 CommonMethods.black_king_checked = temp_w_b_c;
-                                temp_board = boardcopy(this, temp_board);
-                                if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                                    moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                                temp_board = copy(this,temp_board);
+                                if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                                    moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                                 }
                                 temp_y--;
                                 temp_x++;
@@ -709,25 +696,25 @@ public class Board {
                                 CommonMethods.castling = temp_castl;
                                 CommonMethods.white_king_checked = temp_w_k_c;
                                 CommonMethods.black_king_checked = temp_w_b_c;
-                                temp_board = boardcopy(this, temp_board);
-                                if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                                    moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                                temp_board = copy(this,temp_board);
+                                if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                                    moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                                 }
                                 temp_y++;
                                 temp_x--;
                             }
                         }
                         break;
-                    case "Knight":
+                    case KNIGHT:
                         temp_x = x - 1;
                         temp_y = y - 2;
                         CommonMethods.player = temp_player;
                         CommonMethods.castling = temp_castl;
                         CommonMethods.white_king_checked = temp_w_k_c;
                         CommonMethods.black_king_checked = temp_w_b_c;
-                        temp_board = boardcopy(this, temp_board);
-                        if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                            moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                        temp_board = copy(this,temp_board);
+                        if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                            moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                         }
                         temp_x = x - 1;
                         temp_y = y + 2;
@@ -735,9 +722,9 @@ public class Board {
                         CommonMethods.castling = temp_castl;
                         CommonMethods.white_king_checked = temp_w_k_c;
                         CommonMethods.black_king_checked = temp_w_b_c;
-                        temp_board = boardcopy(this, temp_board);
-                        if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                            moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                        temp_board = copy(this,temp_board);
+                        if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                            moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                         }
                         temp_x = x - 2;
                         temp_y = y - 1;
@@ -745,9 +732,9 @@ public class Board {
                         CommonMethods.castling = temp_castl;
                         CommonMethods.white_king_checked = temp_w_k_c;
                         CommonMethods.black_king_checked = temp_w_b_c;
-                        temp_board = boardcopy(this, temp_board);
-                        if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                            moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                        temp_board = copy(this,temp_board);
+                        if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                            moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                         }
                         temp_x = x - 2;
                         temp_y = y + 1;
@@ -755,9 +742,9 @@ public class Board {
                         CommonMethods.castling = temp_castl;
                         CommonMethods.white_king_checked = temp_w_k_c;
                         CommonMethods.black_king_checked = temp_w_b_c;
-                        temp_board = boardcopy(this, temp_board);
-                        if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                            moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                        temp_board = copy(this,temp_board);
+                        if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                            moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                         }
                         temp_x = x + 1;
                         temp_y = y - 2;
@@ -765,9 +752,9 @@ public class Board {
                         CommonMethods.castling = temp_castl;
                         CommonMethods.white_king_checked = temp_w_k_c;
                         CommonMethods.black_king_checked = temp_w_b_c;
-                        temp_board = boardcopy(this, temp_board);
-                        if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                            moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                        temp_board = copy(this,temp_board);
+                        if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                            moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                         }
                         temp_x = x + 1;
                         temp_y = y + 2;
@@ -775,9 +762,9 @@ public class Board {
                         CommonMethods.castling = temp_castl;
                         CommonMethods.white_king_checked = temp_w_k_c;
                         CommonMethods.black_king_checked = temp_w_b_c;
-                        temp_board = boardcopy(this, temp_board);
-                        if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                            moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                        temp_board = copy(this,temp_board);
+                        if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                            moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                         }
                         temp_x = x + 2;
                         temp_y = y - 1;
@@ -785,9 +772,9 @@ public class Board {
                         CommonMethods.castling = temp_castl;
                         CommonMethods.white_king_checked = temp_w_k_c;
                         CommonMethods.black_king_checked = temp_w_b_c;
-                        temp_board = boardcopy(this, temp_board);
-                        if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                            moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                        temp_board = copy(this,temp_board);
+                        if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                            moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                         }
                         temp_x = x + 2;
                         temp_y = y + 1;
@@ -795,12 +782,12 @@ public class Board {
                         CommonMethods.castling = temp_castl;
                         CommonMethods.white_king_checked = temp_w_k_c;
                         CommonMethods.black_king_checked = temp_w_b_c;
-                        temp_board = boardcopy(this, temp_board);
-                        if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                            moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                        temp_board = copy(this,temp_board);
+                        if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                            moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                         }
                         break;
-                    case "Queen":
+                    case QUEEN:
                         temp_x = x - 1;
                         while (true) {
                             if (temp_x <= -1) {
@@ -813,9 +800,9 @@ public class Board {
                                 CommonMethods.castling = temp_castl;
                                 CommonMethods.white_king_checked = temp_w_k_c;
                                 CommonMethods.black_king_checked = temp_w_b_c;
-                                temp_board = boardcopy(this, temp_board);
-                                if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, y))) {
-                                    moves.add(CommonMethods.rev_convert(x, y, temp_x, y));
+                                temp_board = copy(this,temp_board);
+                                if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, y))) {
+                                    moves.add(CommonMethods.reverseConvert(x, y, temp_x, y));
                                 }
                                 temp_x--;
                             } else if (temp_x > x) {
@@ -823,9 +810,9 @@ public class Board {
                                 CommonMethods.castling = temp_castl;
                                 CommonMethods.white_king_checked = temp_w_k_c;
                                 CommonMethods.black_king_checked = temp_w_b_c;
-                                temp_board = boardcopy(this, temp_board);
-                                if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, y))) {
-                                    moves.add(CommonMethods.rev_convert(x, y, temp_x, y));
+                                temp_board = copy(this,temp_board);
+                                if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, y))) {
+                                    moves.add(CommonMethods.reverseConvert(x, y, temp_x, y));
                                 }
                                 temp_x++;
                             }
@@ -842,9 +829,9 @@ public class Board {
                                 CommonMethods.castling = temp_castl;
                                 CommonMethods.white_king_checked = temp_w_k_c;
                                 CommonMethods.black_king_checked = temp_w_b_c;
-                                temp_board = boardcopy(this, temp_board);
-                                if (temp_board.apply_move(CommonMethods.rev_convert(x, y, x, temp_y))) {
-                                    moves.add(CommonMethods.rev_convert(x, y, x, temp_y));
+                                temp_board = copy(this,temp_board);
+                                if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, x, temp_y))) {
+                                    moves.add(CommonMethods.reverseConvert(x, y, x, temp_y));
                                 }
                                 temp_y--;
                             } else if (temp_y > y) {
@@ -852,9 +839,9 @@ public class Board {
                                 CommonMethods.castling = temp_castl;
                                 CommonMethods.white_king_checked = temp_w_k_c;
                                 CommonMethods.black_king_checked = temp_w_b_c;
-                                temp_board = boardcopy(this, temp_board);
-                                if (temp_board.apply_move(CommonMethods.rev_convert(x, y, x, temp_y))) {
-                                    moves.add(CommonMethods.rev_convert(x, y, x, temp_y));
+                                temp_board = copy(this,temp_board);
+                                if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, x, temp_y))) {
+                                    moves.add(CommonMethods.reverseConvert(x, y, x, temp_y));
                                 }
                                 temp_y++;
                             }
@@ -873,9 +860,9 @@ public class Board {
                                 CommonMethods.castling = temp_castl;
                                 CommonMethods.white_king_checked = temp_w_k_c;
                                 CommonMethods.black_king_checked = temp_w_b_c;
-                                temp_board = boardcopy(this, temp_board);
-                                if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                                    moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                                temp_board = copy(this,temp_board);
+                                if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                                    moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                                 }
                                 temp_x--;
                                 temp_y--;
@@ -884,9 +871,9 @@ public class Board {
                                 CommonMethods.castling = temp_castl;
                                 CommonMethods.white_king_checked = temp_w_k_c;
                                 CommonMethods.black_king_checked = temp_w_b_c;
-                                temp_board = boardcopy(this, temp_board);
-                                if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                                    moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                                temp_board = copy(this,temp_board);
+                                if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                                    moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                                 }
                                 temp_x++;
                                 temp_y++;
@@ -906,9 +893,9 @@ public class Board {
                                 CommonMethods.castling = temp_castl;
                                 CommonMethods.white_king_checked = temp_w_k_c;
                                 CommonMethods.black_king_checked = temp_w_b_c;
-                                temp_board = boardcopy(this, temp_board);
-                                if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                                    moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                                temp_board = copy(this,temp_board);
+                                if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                                    moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                                 }
                                 temp_y--;
                                 temp_x++;
@@ -917,25 +904,25 @@ public class Board {
                                 CommonMethods.castling = temp_castl;
                                 CommonMethods.white_king_checked = temp_w_k_c;
                                 CommonMethods.black_king_checked = temp_w_b_c;
-                                temp_board = boardcopy(this, temp_board);
-                                if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                                    moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                                temp_board = copy(this,temp_board);
+                                if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                                    moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                                 }
                                 temp_y++;
                                 temp_x--;
                             }
                         }
                         break;
-                    case "King":
+                    case KING:
                         temp_x = x - 1;
                         temp_y = y - 1;
                         CommonMethods.player = temp_player;
                         CommonMethods.castling = temp_castl;
                         CommonMethods.white_king_checked = temp_w_k_c;
                         CommonMethods.black_king_checked = temp_w_b_c;
-                        temp_board = boardcopy(this, temp_board);
-                        if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                            moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                        temp_board = copy(this,temp_board);
+                        if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                            moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                         }
                         temp_x = x - 1;
                         temp_y = y + 1;
@@ -943,9 +930,9 @@ public class Board {
                         CommonMethods.castling = temp_castl;
                         CommonMethods.white_king_checked = temp_w_k_c;
                         CommonMethods.black_king_checked = temp_w_b_c;
-                        temp_board = boardcopy(this, temp_board);
-                        if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                            moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                        temp_board = copy(this,temp_board);
+                        if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                            moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                         }
                         temp_x = x - 1;
                         temp_y = y;
@@ -953,9 +940,9 @@ public class Board {
                         CommonMethods.castling = temp_castl;
                         CommonMethods.white_king_checked = temp_w_k_c;
                         CommonMethods.black_king_checked = temp_w_b_c;
-                        temp_board = boardcopy(this, temp_board);
-                        if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                            moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                        temp_board = copy(this,temp_board);
+                        if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                            moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                         }
                         temp_x = x;
                         temp_y = y - 1;
@@ -963,9 +950,9 @@ public class Board {
                         CommonMethods.castling = temp_castl;
                         CommonMethods.white_king_checked = temp_w_k_c;
                         CommonMethods.black_king_checked = temp_w_b_c;
-                        temp_board = boardcopy(this, temp_board);
-                        if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                            moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                        temp_board = copy(this,temp_board);
+                        if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                            moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                         }
                         temp_x = x;
                         temp_y = y + 1;
@@ -973,9 +960,9 @@ public class Board {
                         CommonMethods.castling = temp_castl;
                         CommonMethods.white_king_checked = temp_w_k_c;
                         CommonMethods.black_king_checked = temp_w_b_c;
-                        temp_board = boardcopy(this, temp_board);
-                        if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                            moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                        temp_board = copy(this,temp_board);
+                        if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                            moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                         }
                         temp_x = x + 1;
                         temp_y = y - 1;
@@ -983,9 +970,9 @@ public class Board {
                         CommonMethods.castling = temp_castl;
                         CommonMethods.white_king_checked = temp_w_k_c;
                         CommonMethods.black_king_checked = temp_w_b_c;
-                        temp_board = boardcopy(this, temp_board);
-                        if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                            moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                        temp_board = copy(this,temp_board);
+                        if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                            moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                         }
                         temp_x = x + 1;
                         temp_y = y + 1;
@@ -993,9 +980,9 @@ public class Board {
                         CommonMethods.castling = temp_castl;
                         CommonMethods.white_king_checked = temp_w_k_c;
                         CommonMethods.black_king_checked = temp_w_b_c;
-                        temp_board = boardcopy(this, temp_board);
-                        if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                            moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                        temp_board = copy(this,temp_board);
+                        if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                            moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                         }
                         temp_x = x + 1;
                         temp_y = y;
@@ -1003,33 +990,33 @@ public class Board {
                         CommonMethods.castling = temp_castl;
                         CommonMethods.white_king_checked = temp_w_k_c;
                         CommonMethods.black_king_checked = temp_w_b_c;
-                        temp_board = boardcopy(this, temp_board);
-                        if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, temp_y))) {
-                            moves.add(CommonMethods.rev_convert(x, y, temp_x, temp_y));
+                        temp_board = copy(this,temp_board);
+                        if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
+                            moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                         }
                         CommonMethods.player = temp_player;
                         CommonMethods.castling = temp_castl;
                         CommonMethods.white_king_checked = temp_w_k_c;
                         CommonMethods.black_king_checked = temp_w_b_c;
-                        temp_board = boardcopy(this, temp_board);
-                        if ((p.get_color() == false && y == 7) || (p.get_color() == true && y == 0)) {
+                        temp_board = copy(this,temp_board);
+                        if ((!p.getColor() && y == 7) || (p.getColor() && y == 0)) {
                             temp_x = 2;
                             CommonMethods.player = temp_player;
                             CommonMethods.castling = temp_castl;
                             CommonMethods.white_king_checked = temp_w_k_c;
                             CommonMethods.black_king_checked = temp_w_b_c;
-                            temp_board = boardcopy(this, temp_board);
-                            if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, y))) {
-                                moves.add(CommonMethods.rev_convert(x, y, temp_x, y));
+                            temp_board = copy(this,temp_board);
+                            if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, y))) {
+                                moves.add(CommonMethods.reverseConvert(x, y, temp_x, y));
                             }
                             temp_x = 6;
                             CommonMethods.player = temp_player;
                             CommonMethods.castling = temp_castl;
                             CommonMethods.white_king_checked = temp_w_k_c;
                             CommonMethods.black_king_checked = temp_w_b_c;
-                            temp_board = boardcopy(this, temp_board);
-                            if (temp_board.apply_move(CommonMethods.rev_convert(x, y, temp_x, y))) {
-                                moves.add(CommonMethods.rev_convert(x, y, temp_x, y));
+                            temp_board = copy(this,temp_board);
+                            if (temp_board.applyMove(CommonMethods.reverseConvert(x, y, temp_x, y))) {
+                                moves.add(CommonMethods.reverseConvert(x, y, temp_x, y));
                             }
                         }
                         break;

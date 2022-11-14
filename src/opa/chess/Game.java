@@ -1,39 +1,33 @@
 package opa.chess;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import opa.chess.Config.CommonMethods;
+import opa.chess.Models.Board;
+import opa.chess.Services.AI;
+import opa.chess.Services.UCI;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.io.UnsupportedEncodingException;
 import java.io.FileNotFoundException;
 import javax.swing.Timer;
 
 public class Game {
 
-    private static final AI ai = new AI();
-    private static Board b;
-    private static Thread t;
-    private static Thread t2;
-    private static ArrayList<String> moves = new ArrayList<String>();
-    private static boolean Quit = false;
-    private static boolean AIrun = false;
-    private static Timer timer;
+    private final AI ai;
+    private final Timer timer;
+    private Board board;
+    private ArrayList<String> moves = new ArrayList<>();
+    private boolean Quit = false;
 
     public Game() {
-        timer = new Timer(29000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                CommonMethods.stop = true;
-            }
-        });
+        ai = new AI();
+        timer = new Timer(29000, arg0 -> CommonMethods.stop = true);
         timer.setRepeats(false);
-        Start();
     }
 
-    public static void Start() {
+    public void start() {
         Scanner input = new Scanner(System.in);
         while (true) {
             CommonMethods.player = 1;
@@ -67,17 +61,17 @@ public class Game {
 
     }
 
-    private static void UCIoption() {
+    private void UCIoption() {
         UCI uci = new UCI();
     }
 
-    private static void CONSOLEoption() {
+    private void CONSOLEoption() {
         CommonMethods.player = 1;
         CommonMethods.en_passant = false;
         CommonMethods.castling = false;
         CommonMethods.white_king_checked = false;
         CommonMethods.black_king_checked = false;
-        b = new Board();
+        board = new Board();
         System.out.println("============================");
         System.out.println("|       Console Mode       |");
         System.out.println("============================");
@@ -101,8 +95,8 @@ public class Game {
         }
     }
 
-    private static void HvsAI() {
-        moves = new ArrayList<String>();
+    private void HvsAI() {
+        moves = new ArrayList<>();
         System.out.println("============================");
         System.out.println("| Load Game?               |");
         System.out.println("|        > y/yes           |");
@@ -112,7 +106,7 @@ public class Game {
         Scanner input = new Scanner(System.in);
         String i = input.nextLine();
         if (i.equalsIgnoreCase("yes") || i.equalsIgnoreCase("y")) {
-            LoadGame();
+            loadGame();
         } else {
             System.out.println("============================");
             System.out.println("| Color:                   |");
@@ -122,10 +116,7 @@ public class Game {
             System.out.print("> ");
             String i2 = input.nextLine();
             System.out.println("********* Game Started **********\n");
-            try {
-                b.print_board();
-            } catch (UnsupportedEncodingException ex) {
-            }
+            board.print();
             System.out.println("=================================");
             if (i2.equalsIgnoreCase("2")) {
                 AIturn(0);
@@ -146,8 +137,8 @@ public class Game {
         }
     }
 
-    private static void HvsH() {
-        moves = new ArrayList<String>();
+    private void HvsH() {
+        moves = new ArrayList<>();
         System.out.println("============================");
         System.out.println("| Load Game?               |");
         System.out.println("|        > y/yes           |");
@@ -157,18 +148,15 @@ public class Game {
         Scanner input = new Scanner(System.in);
         String i = input.nextLine();
         if (i.equalsIgnoreCase("yes") || i.equalsIgnoreCase("y")) {
-            LoadGame();
+            loadGame();
         } else {
             System.out.println("============================");
-            System.out.println("| Players:                  |");
+            System.out.println("| Players:                 |");
             System.out.println("|     1 => White (UP)      |");
             System.out.println("|     2 => Black (DOWN)    |");
             System.out.println("============================");
             System.out.println("********* Game Started **********\n");
-            try {
-                b.print_board();
-            } catch (UnsupportedEncodingException ex) {
-            }
+            board.print();
             System.out.println("=================================");
         }
         while (true) {
@@ -182,37 +170,31 @@ public class Game {
         }
     }
 
-    private static void AIvsAI() {
+    private void AIvsAI() {
         System.out.println("============================");
         System.out.println("| AIs:                     |");
         System.out.println("|     1 => White (UP)      |");
         System.out.println("|     2 => Black (DOWN)    |");
         System.out.println("============================");
         System.out.println("********* Game Started **********\n");
-        try {
-            b.print_board();
-        } catch (UnsupportedEncodingException ex) {
-        }
+        board.print();
         System.out.println("=================================");
-        t = new Thread() {
-            @Override
-            public void run() {
-                Scanner sc = new Scanner(System.in);
-                while (true) {
-                    if (sc.hasNext()) {
-                        String Input = sc.nextLine();
-                        if (Input.equalsIgnoreCase("stop")) {
-                            CommonMethods.stop = true;
-                        } else if (Input.equalsIgnoreCase("end")) {
-                            CommonMethods.stop = true;
-                            Quit = true;
-                            break;
-                        }
+        Thread thread = new Thread(() -> {
+            Scanner sc = new Scanner(System.in);
+            while (true) {
+                if (sc.hasNext()) {
+                    String Input = sc.nextLine();
+                    if (Input.equalsIgnoreCase("stop")) {
+                        CommonMethods.stop = true;
+                    } else if (Input.equalsIgnoreCase("end")) {
+                        CommonMethods.stop = true;
+                        Quit = true;
+                        break;
                     }
                 }
             }
-        };
-        t.start();
+        });
+        thread.start();
         while (true) {
             if (Draw()) {
                 System.out.println("========== Game Ended ==========");
@@ -223,52 +205,49 @@ public class Game {
             if (Quit) {
                 Quit = false;
                 System.out.println("========== Game Ended ==========");
-                t.suspend();
+                thread.suspend();
                 break;
             }
         }
     }
 
-    private static void LoadGame() {
+    private void loadGame() {
         System.out.println("Please enter File name : ");
         System.out.print("> ");
         Scanner input = new Scanner(System.in);
-        String LoadedFilename = input.nextLine();
-        String Loadedfile;
+        String loadedFileName = input.nextLine();
+        String loadedFile;
         Scanner in;
         try {
-            in = new Scanner(new FileReader(LoadedFilename + ".txt"));
-            Loadedfile = in.nextLine();
+            in = new Scanner(new FileReader(loadedFileName + ".txt"));
+            loadedFile = in.nextLine();
             in.close();
         } catch (FileNotFoundException ex) {
-            Loadedfile = null;
             System.err.println("Error Reading File");
+            return;
         }
         System.out.println("Game Loaded!");
-        String[] Loadedgamemoves = Loadedfile.split(" ");
+        String[] loadedMoves = loadedFile.split(" ");
         CommonMethods.player = 1;
         CommonMethods.en_passant = false;
         CommonMethods.castling = false;
         CommonMethods.white_king_checked = false;
         CommonMethods.black_king_checked = false;
-        b = new Board();
+        board = new Board();
         System.out.println("========== Game Started =========");
-        for (String w1 : Loadedgamemoves) {
+        for (String w1 : loadedMoves) {
             System.out.println("============== " + w1 + " ============");
-            if (!b.apply_move(w1)) {
+            if (!board.applyMove(w1)) {
                 System.out.println("Invalid Move: " + w1);
                 break;
             }
             moves.add(w1);
-            try {
-                b.print_board();
-            } catch (UnsupportedEncodingException ex) {
-            }
+            board.print();
             System.out.println("=================================");
         }
     }
 
-    private static void AIturn(int x) {
+    private void AIturn(int x) {
         if (x == 0) {
             System.out.print("\nAI Turn: \n> Thinking .. \n");
         } else {
@@ -276,19 +255,16 @@ public class Game {
         }
         CommonMethods.stop = false;
         timer.start();
-        String ai_move = ai.alphabeta(CommonMethods.player, b, Integer.MIN_VALUE, Integer.MAX_VALUE, CommonMethods.depth);
+        String ai_move = ai.alphaBeta(CommonMethods.player, board, Integer.MIN_VALUE, Integer.MAX_VALUE, CommonMethods.depth);
         timer.stop();
         if (ai_move != null) {
             System.out.println("> AI Played: " + ai_move);
-            if (!b.apply_move(ai_move)) {
+            if (!board.applyMove(ai_move)) {
                 System.out.println("Invalid AI Move: " + ai_move);
                 return;
             }
             moves.add(ai_move);
-            try {
-                b.print_board();
-            } catch (UnsupportedEncodingException ex) {
-            }
+            board.print();
             System.out.println("===================================");
         } else {
             System.out.println("AI ERROR!");
@@ -296,7 +272,7 @@ public class Game {
         }
     }
 
-    private static boolean HUturn(int x) {
+    private boolean HUturn(int x) {
         Scanner input = new Scanner(System.in);
         while (true) {
             if (x == 0) {
@@ -323,23 +299,20 @@ public class Game {
                     System.out.println("Error Saving File!!");
                 }
             } else {
-                if (!b.apply_move(w)) {
+                if (!board.applyMove(w)) {
                     System.out.println("Invalid Move: " + w);
                     continue;
                 }
                 moves.add(w);
-                try {
-                    b.print_board();
-                } catch (UnsupportedEncodingException ex) {
-                }
+                board.print();
                 System.out.println("==================================");
                 return true;
             }
         }
     }
 
-    private static boolean Draw() {
-        ArrayList<String> AvailableMoves = b.next_moves(CommonMethods.player);
+    private boolean Draw() {
+        ArrayList<String> AvailableMoves = board.nextMoves(CommonMethods.player);
         if (AvailableMoves.isEmpty()) {
             if (CommonMethods.player == 1 && CommonMethods.white_king_checked) {
                 System.out.println("   ==||Checkmate Black Won||==");

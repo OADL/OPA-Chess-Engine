@@ -1,27 +1,22 @@
-package opa.chess;
+package opa.chess.Services;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import opa.chess.Models.Board;
+import opa.chess.Config.CommonMethods;
+
 import java.util.Scanner;
-import java.io.UnsupportedEncodingException;
 import javax.swing.Timer;
 
 public class UCI {
 
-    private static String NAMEVERSION = "OPA-Chess AlphaBeta v0.01";
-    private static String AUTHOR = "OPA";
+    private static final String NAME_VERSION = "OPA-Chess AlphaBeta v0.01";
+    private static final String AUTHOR = "OPA";
     private static AI ai;
-    private static Board b;
-    private static Thread t;
+    private static Board board;
+    private static Thread thread;
     private static Timer timer;
 
     public UCI() {
-        timer = new Timer(29000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                CommonMethods.stop = true;
-            }
-        });
+        timer = new Timer(29000, arg0 -> CommonMethods.stop = true);
         timer.setRepeats(false);
         CommonMethods.player = 1;
         CommonMethods.en_passant = false;
@@ -29,8 +24,8 @@ public class UCI {
         CommonMethods.white_king_checked = false;
         CommonMethods.black_king_checked = false;
         ai = new AI();
-        b = new Board();
-        UCIoption();
+        board = new Board();
+        init();
         API();
     }
 
@@ -39,17 +34,17 @@ public class UCI {
         while (true) {
             String inputline = input.nextLine();
             if (inputline.equals("isready")) {
-                ISREADYoption(); //done
+                isReady(); //done
             } else if (inputline.equals("ucinewgame")) {
-                UCINEWGAMEoption(); //done
+                uciNewGame(); //TODO
             } else if (inputline.startsWith("position")) {
-                POSITIONoption(inputline);
+                position(inputline);
             } else if (inputline.startsWith("go")) {
-                GOoption(); //done
+                go(); //done
             } else if (inputline.equals("print")) {
-                PRINToption();
+                print();
             } else if (inputline.equals("stop")) {
-                STOPoption();
+                stop();
             } else if (inputline.equals("quit")) {
                 System.exit(0);
                 break;
@@ -58,61 +53,53 @@ public class UCI {
 
     }
 
-    private static void UCIoption() {
-        System.out.println("id name " + NAMEVERSION);
+    private static void init() {
+        System.out.println("id name " + NAME_VERSION);
         System.out.println("id Author " + AUTHOR);
         //options available
         System.out.println("uciok");
     }
 
-    private static void ISREADYoption() {
+    private static void isReady() {
         System.out.println("readyok"); //To change body of generated methods, choose Tools | Templates.
     }
 
-    private static void UCINEWGAMEoption() {
+    private static void uciNewGame() {
         //clear hash + other stuff if needed
         System.out.println("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    private static void GOoption() {//this will generate the next nove and print it
-        t = new Thread() {
-            public void run() {
-                CommonMethods.stop = false;
-                timer.start();
-                String move = ai.alphabeta(CommonMethods.player, b, Integer.MIN_VALUE, Integer.MAX_VALUE, CommonMethods.depth);
-                timer.stop();
-                CommonMethods.stop = false;
-                System.out.println("bestmove " + move);
-            }
-        };
-        t.start();
+    private static void go() {//this will generate the next nove and print it
+        thread = new Thread(() -> {
+            CommonMethods.stop = false;
+            timer.start();
+            String move = ai.alphaBeta(CommonMethods.player, board, Integer.MIN_VALUE, Integer.MAX_VALUE, CommonMethods.depth);
+            timer.stop();
+            CommonMethods.stop = false;
+            System.out.println("bestmove " + move);
+        });
+        thread.start();
     }
 
-    private static void STOPoption() {
-        t.interrupt();
+    private static void stop() {
+        thread.interrupt();
     }
 
-    private static void PRINToption() {
-        try {
-            b.print_board();
-        } catch (UnsupportedEncodingException ex) {
-        }
+    private static void print() {
+        board.print();
     }
 
-    private static void POSITIONoption(String Input) {
-
+    private static void position(String Input) {
         Input = Input.replace("position ", "");
         if (Input.startsWith("startpos")) {
             if (Input.contains("startpos ")) {
-
                 Input = Input.replace("startpos ", "");
                 CommonMethods.player = 1;
                 CommonMethods.en_passant = false;
                 CommonMethods.castling = false;
                 CommonMethods.white_king_checked = false;
                 CommonMethods.black_king_checked = false;
-                b = new Board();
-
+                board = new Board();
             } else {
                 Input = Input.replace("startpos", "");
                 CommonMethods.player = 1;
@@ -120,8 +107,7 @@ public class UCI {
                 CommonMethods.castling = false;
                 CommonMethods.white_king_checked = false;
                 CommonMethods.black_king_checked = false;
-                b = new Board();
-
+                board = new Board();
             }
         } else if (Input.startsWith("fen")) {
             Input = Input.replace("fen ", "");
@@ -131,7 +117,7 @@ public class UCI {
             Input = Input.replace("moves ", "");
             String[] movess = Input.split(" ");
             for (String w : movess) {
-                if (!b.apply_move(w)) {
+                if (!board.applyMove(w)) {
                     break;
                 }
             }
