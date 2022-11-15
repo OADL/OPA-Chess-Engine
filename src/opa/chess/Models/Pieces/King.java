@@ -1,6 +1,7 @@
 package opa.chess.Models.Pieces;
 
 import opa.chess.Config.CommonMethods;
+import opa.chess.Enums.Color;
 import opa.chess.Enums.Location;
 
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import static opa.chess.Enums.PieceType.*;
 
 public class King extends Piece {
 
-    public King(Location location, boolean color, int x, int y) {
+    public King(Location location, Color color, int x, int y) {
         super(location, color, x, y, KING);
     }
 
@@ -23,7 +24,7 @@ public class King extends Piece {
         }
         if ((x2 == 2 || x2 == 6) && (y2 == 0 || y2 == 7)) {//all possible castling possitions
             if (this.firstMove) {//checks if this is the first move for the King
-                if ((!this.color && CommonMethods.white_king_checked) || (this.color && CommonMethods.black_king_checked))//if checked cant castle
+                if (((this.color == Color.WHITE) && CommonMethods.white_king_checked) || ((this.color == Color.BLACK) && CommonMethods.black_king_checked))//if checked cant castle
                 {
                     return false;
                 }
@@ -68,5 +69,10 @@ public class King extends Piece {
     @Override
     public Piece clone() {
         return new King(this.location, this.color, this.X, this.Y).setFirstMove(this.firstMove);
+    }
+
+    @Override
+    public String toString() {
+        return (this.color == Color.BLACK)? "\u2654" : "\u265A";
     }
 }

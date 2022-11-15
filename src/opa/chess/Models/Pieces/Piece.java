@@ -1,6 +1,7 @@
 package opa.chess.Models.Pieces;
 
 import opa.chess.Config.CommonMethods;
+import opa.chess.Enums.Color;
 import opa.chess.Enums.Location;
 import opa.chess.Enums.PieceType;
 
@@ -10,12 +11,12 @@ public abstract class Piece {
 
     protected PieceType type;
     protected Location location; //False Down  True UP
-    protected boolean color;    //False White True black
+    protected Color color;    //False White True black
     protected boolean firstMove;
     protected int X;
     protected int Y;
 
-    protected Piece(Location location, boolean color, int x, int y, PieceType type) {
+    protected Piece(Location location, Color color, int x, int y, PieceType type) {
         this.firstMove = true;
         this.location = location;
         this.color = color;
@@ -36,7 +37,7 @@ public abstract class Piece {
         return Y;
     }
 
-    public boolean getColor() {
+    public Color getColor() {
         return color;
     }
 
@@ -63,7 +64,7 @@ public abstract class Piece {
         return this;
     }
 
-    public Piece setColor(boolean color) {
+    public Piece setColor(Color color) {
         this.color = color;
         return this;
     }
@@ -102,4 +103,6 @@ public abstract class Piece {
     protected abstract boolean blocked(int x2, int y2, ArrayList<Piece> pieces);
 
     public abstract Piece clone();
+
+    public abstract String toString();
 }

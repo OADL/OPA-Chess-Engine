@@ -1,6 +1,7 @@
 package opa.chess.Models.Pieces;
 
 import opa.chess.Config.CommonMethods;
+import opa.chess.Enums.Color;
 import opa.chess.Enums.Location;
 
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import static opa.chess.Enums.PieceType.KNIGHT;
 
 public class Knight extends Piece {
 
-    public Knight(Location location, boolean color, int x, int y) {
+    public Knight(Location location, Color color, int x, int y) {
         super(location, color, x, y, KNIGHT);
     }
 
@@ -46,5 +47,10 @@ public class Knight extends Piece {
     @Override
     public Piece clone() {
         return new Knight(this.location, this.color, this.X, this.Y).setFirstMove(this.firstMove);
+    }
+
+    @Override
+    public String toString() {
+        return (this.color == Color.BLACK)? "\u2658" : "\u265E";
     }
 }

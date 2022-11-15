@@ -1,5 +1,6 @@
 package opa.chess.Config;
 
+import opa.chess.Enums.Color;
 import opa.chess.Enums.PieceType;
 import opa.chess.Models.Pieces.Piece;
 
@@ -53,7 +54,7 @@ public class CommonMethods {
         return null;
     }
 
-    public static Piece getPieceOnSquare(PieceType Type, boolean Color, ArrayList<Piece> pieces) {
+    public static Piece getPieceOnSquare(PieceType Type, Color Color, ArrayList<Piece> pieces) {
         for (Piece piece : pieces) {
             if (piece.getType().equals(Type) && piece.getColor() == Color) {
                 return piece;
@@ -85,5 +86,17 @@ public class CommonMethods {
 
         }
         return result;
+    }
+
+    public static String[][] createEmptyBoard() {
+        return new String[][]{
+                {" ", " ", " ", " ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " ", " ", " ", " "}};
     }
 }

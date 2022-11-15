@@ -143,8 +143,8 @@ public class AI {
 
     public int evaluate(Board b, int player_turn) {
         int sum_up = 0, sum_down = 0, piece_value = 0, piece_y = 0, piece_x = 0;
-        for (int i = 0; i < b.pieces.size(); i++) {
-            Piece p = b.pieces.get(i);
+        for (int i = 0; i < b.getPieces().size(); i++) {
+            Piece p = b.getPieces().get(i);
             piece_y = p.getY();
             piece_x = p.getX();
             piece_value = 0;
