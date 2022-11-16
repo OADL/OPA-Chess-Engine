@@ -205,7 +205,7 @@ public class Game {
             if (Quit) {
                 Quit = false;
                 System.out.println("========== Game Ended ==========");
-                thread.suspend();
+                thread.interrupt();
                 break;
             }
         }
@@ -248,6 +248,8 @@ public class Game {
     }
 
     private void AIturn(int x) {
+        long startTime = System.nanoTime();
+
         if (x == 0) {
             System.out.print("\nAI Turn: \n> Thinking .. \n");
         } else {
@@ -263,6 +265,9 @@ public class Game {
                 System.out.println("Invalid AI Move: " + ai_move);
                 return;
             }
+            long stopTime = System.nanoTime();
+            float elapsedTime = (stopTime-startTime)/1000000000F;
+            System.out.println("> Elapsed time: "+ elapsedTime);
             moves.add(ai_move);
             board.print();
             System.out.println("===================================");
