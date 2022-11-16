@@ -3,7 +3,9 @@ package opa.chess.Config;
 import opa.chess.Enums.Color;
 import opa.chess.Enums.PieceType;
 import opa.chess.Models.Pieces.Piece;
+import opa.chess.Models.Square;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -70,15 +72,13 @@ public class CommonMethods {
         return result;
     }
 
-    public static String[][] createEmptyBoard() {
-        return new String[][]{
-                {" ", " ", " ", " ", " ", " ", " ", " "},
-                {" ", " ", " ", " ", " ", " ", " ", " "},
-                {" ", " ", " ", " ", " ", " ", " ", " "},
-                {" ", " ", " ", " ", " ", " ", " ", " "},
-                {" ", " ", " ", " ", " ", " ", " ", " "},
-                {" ", " ", " ", " ", " ", " ", " ", " "},
-                {" ", " ", " ", " ", " ", " ", " ", " "},
-                {" ", " ", " ", " ", " ", " ", " ", " "}};
+    public static Square[][] createEmptyBoard() {
+        Square[][] squares = new Square[8][8];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                squares[i][j] = new Square(null, i,j);
+            }
+        }
+        return squares;
     }
 }

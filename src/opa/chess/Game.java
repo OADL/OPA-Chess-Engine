@@ -1,6 +1,7 @@
 package opa.chess;
 
 import opa.chess.Config.CommonMethods;
+import opa.chess.Enums.Color;
 import opa.chess.Models.Board;
 import opa.chess.Services.AI;
 import opa.chess.Services.UCI;
@@ -8,6 +9,7 @@ import opa.chess.Services.UCI;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.FileNotFoundException;
@@ -62,7 +64,7 @@ public class Game {
     }
 
     private void UCIoption() {
-        UCI uci = new UCI();
+        new UCI();
     }
 
     private void CONSOLEoption() {
@@ -79,6 +81,7 @@ public class Game {
         System.out.println("|        1. Human vs AI    |");
         System.out.println("|        2. Human vs Human |");
         System.out.println("|        3. AI vs AI       |");
+        System.out.println("|        4. Back           |");
         System.out.println("============================");
         System.out.print("> ");
         Scanner input = new Scanner(System.in);
@@ -89,6 +92,8 @@ public class Game {
             HvsH();
         } else if (options.contains("3")) {
             AIvsAI();
+        } else if (options.contains("4")) {
+            return;
         } else {
             System.err.println("Sorry wrong option.");
             System.err.println("============================");
@@ -124,11 +129,11 @@ public class Game {
             }
         }
         while (true) {
-            if (Draw()) {
+            if (isGameFinished()) {
                 System.out.println("========== Game Ended ==========");
                 break;
             }
-            if (HUturn(0)) {
+            if (Hturn(0)) {
                 AIturn(0);
                 CommonMethods.stop = false;
             } else {
@@ -160,11 +165,11 @@ public class Game {
             System.out.println("=================================");
         }
         while (true) {
-            if (Draw()) {
+            if (isGameFinished()) {
                 System.out.println("========== Game Ended ==========");
                 break;
             }
-            if (!HUturn(CommonMethods.player)) {
+            if (!Hturn(CommonMethods.player)) {
                 break;
             }
         }
@@ -196,7 +201,7 @@ public class Game {
         });
         thread.start();
         while (true) {
-            if (Draw()) {
+            if (isGameFinished()) {
                 System.out.println("========== Game Ended ==========");
                 break;
             }
@@ -237,7 +242,7 @@ public class Game {
         System.out.println("========== Game Started =========");
         for (String w1 : loadedMoves) {
             System.out.println("============== " + w1 + " ============");
-            if (!board.applyMove(w1)) {
+            if (!board.handleMove(w1)) {
                 System.out.println("Invalid Move: " + w1);
                 break;
             }
@@ -247,21 +252,37 @@ public class Game {
         }
     }
 
-    private void AIturn(int x) {
-        long startTime = System.nanoTime();
+    private void saveGame() {
+        try {
+            Scanner input = new Scanner(System.in);
+            System.out.println("Please enter File name : ");
+            System.out.print("> ");
+            String SaveFilename = input.nextLine();
+            PrintWriter writer = new PrintWriter(SaveFilename + ".txt", StandardCharsets.UTF_8);
+            for (String move : moves) {
+                writer.print(move + " ");
+            }
+            writer.close();
+            System.out.println("Game Saved!");
+        } catch (IOException e) {
+            System.out.println("Error Saving File!!");
+        }
+    }
 
+    private void AIturn(int x) {
         if (x == 0) {
             System.out.print("\nAI Turn: \n> Thinking .. \n");
         } else {
             System.out.print("\nAI " + x + " Turn: \n> Thinking ..\n");
         }
         CommonMethods.stop = false;
+        long startTime = System.nanoTime();
         timer.start();
         String ai_move = ai.alphaBeta(CommonMethods.player, board, Integer.MIN_VALUE, Integer.MAX_VALUE, CommonMethods.depth);
         timer.stop();
         if (ai_move != null) {
             System.out.println("> AI Played: " + ai_move);
-            if (!board.applyMove(ai_move)) {
+            if (!board.handleMove(ai_move)) {
                 System.out.println("Invalid AI Move: " + ai_move);
                 return;
             }
@@ -273,11 +294,10 @@ public class Game {
             System.out.println("===================================");
         } else {
             System.out.println("AI ERROR!");
-            return;
         }
     }
 
-    private boolean HUturn(int x) {
+    private boolean Hturn(int x) {
         Scanner input = new Scanner(System.in);
         while (true) {
             if (x == 0) {
@@ -290,21 +310,9 @@ public class Game {
                 System.out.println("========== Game Ended ==========");
                 return false;
             } else if (w.equalsIgnoreCase("save")) {
-                try {
-                    System.out.println("Please enter File name : ");
-                    System.out.print("> ");
-                    String SaveFilename = input.nextLine();
-                    PrintWriter writer = new PrintWriter(SaveFilename + ".txt", "UTF-8");
-                    for (int j = 0; j < moves.size(); j++) {
-                        writer.print(moves.get(j) + " ");
-                    }
-                    writer.close();
-                    System.out.println("Game Saved!");
-                } catch (IOException e) {
-                    System.out.println("Error Saving File!!");
-                }
+                saveGame();
             } else {
-                if (!board.applyMove(w)) {
+                if (!board.handleMove(w)) {
                     System.out.println("Invalid Move: " + w);
                     continue;
                 }
@@ -316,16 +324,16 @@ public class Game {
         }
     }
 
-    private boolean Draw() {
+    private boolean isGameFinished() {
         ArrayList<String> AvailableMoves = board.nextMoves(CommonMethods.player);
         if (AvailableMoves.isEmpty()) {
-            if (CommonMethods.player == 1 && CommonMethods.white_king_checked) {
+            if (CommonMethods.player == 1 && board.isKingChecked(Color.WHITE)) {
                 System.out.println("   ==||Checkmate Black Won||==");
-            } else if (CommonMethods.player == 1 && !CommonMethods.white_king_checked) {
+            } else if (CommonMethods.player == 1 && !board.isKingChecked(Color.WHITE)) {
                 System.out.println("    ====== Stalemate =====");
-            } else if (CommonMethods.player == 2 && CommonMethods.black_king_checked) {
+            } else if (CommonMethods.player == 2 && board.isKingChecked(Color.BLACK)) {
                 System.out.println("   ==||Checkmate White Won||==");
-            } else if (CommonMethods.player == 2 && !CommonMethods.black_king_checked) {
+            } else if (CommonMethods.player == 2 && !board.isKingChecked(Color.BLACK)) {
                 System.out.println("    ====== Stalemate =====");
             } else {
                 System.err.println("      ====== ERROR =====");

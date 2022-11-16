@@ -2,7 +2,9 @@ package opa.chess.Models.Pieces;
 
 import opa.chess.Config.CommonMethods;
 import opa.chess.Enums.Color;
+import opa.chess.Enums.MoveType;
 import opa.chess.Models.Board;
+import opa.chess.Models.Square;
 
 import java.util.ArrayList;
 
@@ -10,58 +12,53 @@ import static opa.chess.Enums.PieceType.ROOK;
 
 public class Rook extends Piece {
 
-    public Rook(Color color, int x, int y) {
-        super(color, x, y, ROOK);
+    public Rook(Color color) {
+        super(color, ROOK);
     }
 
     @Override
-    public boolean checkMove(int x2, int y2, Board board) {
-        if (x2 == this.X && y2 == this.Y) { //checks if not moved
-            return false;
+    public MoveType checkMove(Square source, Square destination, Board board) {
+        if (destination.getX() == source.getX() && destination.getY() == source.getY()) { //checks if not moved
+            return MoveType.INVALID;
         }
-        if (x2 < 0 || x2 > 7 || y2 > 7 || y2 < 0) { //checks if out of boundary
-            return false;
+        if (destination.getX() < 0 || destination.getX() > 7 || destination.getY() > 7 || destination.getY() < 0) { //checks if out of boundary
+            return MoveType.INVALID;
         }
-        if (y2 != this.Y && x2 == this.X) {
+        if (destination.getY() != source.getY() && destination.getX() == source.getX()) {
             CommonMethods.en_passant = false;
-            return (!blocked(x2, y2, board.getPieces()));
-        } else if (y2 == this.Y) {
+            return (!blocked(destination.getX(), destination.getY(), source, board.getSquares()))? MoveType.NORMAL: MoveType.INVALID;
+        } else if (destination.getY() == source.getY()) {
             CommonMethods.en_passant = false;
-            return (!blocked(x2, y2, board.getPieces()));
+            return (!blocked(destination.getX(), destination.getY(), source, board.getSquares()))? MoveType.NORMAL : MoveType.INVALID;
         }
-        return false;
+        return MoveType.INVALID;
     }
 
     @Override
-    protected boolean blocked(int x2, int y2, ArrayList<Piece> pieces) {
-        int dX = x2 > this.X ? 1 : -1;
-        int dY = y2 > this.Y ? 1 : -1;
-        if (x2 == this.X) {
-            for (int i = 1; i < Math.abs(y2 - this.Y); i++) {
-                if (pieceOnSquare(this.X, this.Y + i * dY, pieces)) {
+    protected boolean blocked(int x2, int y2, Square square, Square[][] squares) {
+        int dX = x2 > square.getX() ? 1 : -1;
+        int dY = y2 > square.getY() ? 1 : -1;
+        if (x2 == square.getX()) {
+            for (int i = 1; i < Math.abs(y2 - square.getY()); i++) {
+                if (pieceOnSquare(square.getX(), square.getY() + i * dY, squares)) {
                     return true;
                 }
             }
-        } else if (y2 == this.Y) {
-            for (int i = 1; i < Math.abs(x2 - this.X); i++) {
-                if (pieceOnSquare(this.X + i * dX, this.Y, pieces)) {
-                    return true;
-                }
-            }
-        }
-        for (Piece piece : pieces) {
-            if (piece.getX() == x2 && piece.getY() == y2) {
-                if (piece.getColor() == this.color) {
+        } else if (y2 == square.getY()) {
+            for (int i = 1; i < Math.abs(x2 - square.getX()); i++) {
+                if (pieceOnSquare(square.getX() + i * dX, square.getY(), squares)) {
                     return true;
                 }
             }
         }
-        return false;
+        return super.blocked(x2, y2, square, squares);
     }
 
     @Override
-    public int evaluate() {
+    public int evaluate(Square square) {
         int value = 500;
+        int Y = square.getY();
+        int X = square.getX();
         if (color == Color.WHITE /*down*/) {
             if (Y == 0) {
                 value += 0;
@@ -107,7 +104,7 @@ public class Rook extends Piece {
 
     @Override
     public Piece clone() {
-        return new Rook(this.color, this.X, this.Y).setFirstMove(this.firstMove);
+        return new Rook(this.color).setFirstMove(this.firstMove);
     }
 
     @Override

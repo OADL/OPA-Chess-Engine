@@ -2,7 +2,9 @@ package opa.chess.Models.Pieces;
 
 import opa.chess.Config.CommonMethods;
 import opa.chess.Enums.Color;
+import opa.chess.Enums.MoveType;
 import opa.chess.Models.Board;
+import opa.chess.Models.Square;
 
 import java.util.ArrayList;
 
@@ -10,43 +12,33 @@ import static opa.chess.Enums.PieceType.KNIGHT;
 
 public class Knight extends Piece {
 
-    public Knight(Color color, int x, int y) {
-        super(color, x, y, KNIGHT);
+    public Knight(Color color) {
+        super(color, KNIGHT);
     }
 
     @Override
-    public boolean checkMove(int x2, int y2, Board board) {
-        if (x2 == this.X && y2 == this.Y) { //checks if not moved
-            return false;
+    public MoveType checkMove(Square source, Square destination, Board board) {
+        if (destination.getX() == source.getX() && destination.getY() == source.getY()) { //checks if not moved
+            return MoveType.INVALID;
         }
-        if (x2 < 0 || x2 > 7 || y2 > 7 || y2 < 0) { //checks if out of boundary
-            return false;
+        if (destination.getX() < 0 || destination.getX() > 7 || destination.getY() > 7 || destination.getY() < 0) { //checks if out of boundary
+            return MoveType.INVALID;
         }
-        if ((y2 == this.Y + 2 || y2 == this.Y - 2) && (x2 == this.X + 1 || x2 == this.X - 1)) {
+        if ((destination.getY() == source.getY() + 2 || destination.getY() == source.getY() - 2) && (destination.getX() == source.getX() + 1 || destination.getX() == source.getX() - 1)) {
             CommonMethods.en_passant = false;
-            return (!blocked(x2, y2, board.getPieces()));
-        } else if ((y2 == this.Y + 1 || y2 == this.Y - 1) && (x2 == this.X + 2 || x2 == this.X - 2)) {
+            return (!blocked(destination.getX(), destination.getY(), source, board.getSquares()))? MoveType.NORMAL : MoveType.INVALID;
+        } else if ((destination.getY() == source.getY() + 1 || destination.getY() == source.getY() - 1) && (destination.getX() == source.getX() + 2 || destination.getX() == source.getX() - 2)) {
             CommonMethods.en_passant = false;
-            return (!blocked(x2, y2, board.getPieces()));
+            return (!blocked(destination.getX(), destination.getY(), source, board.getSquares()))? MoveType.NORMAL : MoveType.INVALID;
         }
-        return false;
+        return MoveType.INVALID;
     }
 
     @Override
-    protected boolean blocked(int x2, int y2, ArrayList<Piece> pieces) {
-        for (Piece piece : pieces) {
-            if (piece.getX() == x2 && piece.getY() == y2) {
-                if (piece.getColor() == this.color) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public int evaluate() {
+    public int evaluate(Square square) {
         int value = 320;
+        int Y = square.getY();
+        int X = square.getX();
         if (Y == 0 || Y == 7) {
             if (X == 0 || X == 7) {
                 value -= 50;
@@ -179,7 +171,7 @@ public class Knight extends Piece {
 
     @Override
     public Piece clone() {
-        return new Knight(this.color, this.X, this.Y).setFirstMove(this.firstMove);
+        return new Knight(this.color).setFirstMove(this.firstMove);
     }
 
     @Override

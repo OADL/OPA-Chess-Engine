@@ -2,55 +2,50 @@ package opa.chess.Models.Pieces;
 
 import opa.chess.Config.CommonMethods;
 import opa.chess.Enums.Color;
+import opa.chess.Enums.MoveType;
 import opa.chess.Models.Board;
-
-import java.util.ArrayList;
+import opa.chess.Models.Square;
 
 import static opa.chess.Enums.PieceType.BISHOP;
 
 public class Bishop extends Piece {
 
-    public Bishop(Color color, int x, int y) {
-        super(color, x, y, BISHOP);
+    public Bishop(Color color) {
+        super(color, BISHOP);
     }
 
     @Override
-    public boolean checkMove(int x2, int y2, Board board) {
-        if (x2 == this.X && y2 == this.Y) { //checks if not moved
-            return false;
+    public MoveType checkMove(Square source, Square destination, Board board) {
+        if (destination.getX() == source.getX() && destination.getY() == source.getY()) { //checks if not moved
+            return MoveType.INVALID;
         }
-        if (x2 < 0 || x2 > 7 || y2 > 7 || y2 < 0) { //checks if out of boundary
-            return false;
+        if (destination.getX() < 0 || destination.getX() > 7 || destination.getY() > 7 || destination.getY() < 0) { //checks if out of boundary
+            return MoveType.INVALID;
         }
-        if (Math.abs(y2 - this.Y) == Math.abs(x2 - this.X)) {
+        if (Math.abs(destination.getY() - source.getY()) == Math.abs(destination.getX() - source.getX())) {
             CommonMethods.en_passant = false;
-            return (!blocked(x2, y2, board.getPieces()));
+            return (!blocked(destination.getX(), destination.getY(), source, board.getSquares()))? MoveType.NORMAL : MoveType.INVALID;
         }
-        return false;
+        return MoveType.INVALID;
     }
 
     @Override
-    protected boolean blocked(int x2, int y2, ArrayList<Piece> pieces) {
-        int dX = x2 > this.X ? 1 : -1;
-        int dY = y2 > this.Y ? 1 : -1;
-        for (int i = 1; i < Math.abs(x2 - this.X); ++i) {
-            if (pieceOnSquare(this.X + i * dX, this.Y + i * dY, pieces)) {
+    protected boolean blocked(int x2, int y2, Square square, Square[][] squares) {
+        int dX = x2 > square.getX() ? 1 : -1;
+        int dY = y2 > square.getY() ? 1 : -1;
+        for (int i = 1; i < Math.abs(x2 - square.getX()); ++i) {
+            if (pieceOnSquare(square.getX() + i * dX, square.getY() + i * dY, squares)) {
                 return true;
             }
         }
-        for (Piece piece : pieces) {
-            if (piece.getX() == x2 && piece.getY() == y2) {
-                if (piece.getColor() == this.color) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return super.blocked(x2, y2, square, squares);
     }
 
     @Override
-    public int evaluate() {
+    public int evaluate(Square square) {
         int value = 330;
+        int Y = square.getY();
+        int X = square.getX();
         if (Y == 0 || Y == 7) {
             if (X == 0 || X == 7) {
                 value -= 20;
@@ -157,7 +152,7 @@ public class Bishop extends Piece {
 
     @Override
     public Piece clone() {
-        return new Bishop(this.color, this.X, this.Y).setFirstMove(this.firstMove);
+        return new Bishop(this.color).setFirstMove(this.firstMove);
     }
 
     @Override

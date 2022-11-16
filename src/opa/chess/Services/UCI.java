@@ -117,7 +117,7 @@ public class UCI {
             Input = Input.replace("moves ", "");
             String[] movess = Input.split(" ");
             for (String w : movess) {
-                if (!board.applyMove(w)) {
+                if (!board.handleMove(w)) {
                     break;
                 }
             }

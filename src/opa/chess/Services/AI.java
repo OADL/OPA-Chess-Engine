@@ -4,6 +4,7 @@ import opa.chess.Enums.Color;
 import opa.chess.Models.Board;
 import opa.chess.Config.CommonMethods;
 import opa.chess.Models.Pieces.Piece;
+import opa.chess.Models.Square;
 
 import java.util.ArrayList;
 
@@ -41,7 +42,7 @@ public class AI {
             }
             int score;
             CommonMethods.player = player;
-            temp_board.applyMove(m);
+            temp_board.handleMove(m);
             CommonMethods.player = temp_player;
             if (CommonMethods.player == player) {
                 if (depth <= 0) {
@@ -51,13 +52,13 @@ public class AI {
                     if (player == 1) {
                         returned = alphaBeta(2, temp_board, alpha, beta, depth - 1);
                         CommonMethods.player = 2;
-                        temp_board.applyMove(returned);
+                        temp_board.handleMove(returned);
                         CommonMethods.player = temp_player;
                         score = evaluate(temp_board, player);
                     } else {
                         returned = alphaBeta(1, temp_board, alpha, beta, depth - 1);
                         CommonMethods.player = 1;
-                        temp_board.applyMove(returned);
+                        temp_board.handleMove(returned);
                         CommonMethods.player = temp_player;
                         score = evaluate(temp_board, player);
                     }
@@ -92,13 +93,13 @@ public class AI {
                     if (player == 1) {
                         returned = alphaBeta(2, temp_board, alpha, beta, depth - 1);
                         CommonMethods.player = 2;
-                        temp_board.applyMove(returned);
+                        temp_board.handleMove(returned);
                         CommonMethods.player = temp_player;
                         score = evaluate(temp_board, player);
                     } else {
                         returned = alphaBeta(1, temp_board, alpha, beta, depth - 1);
                         CommonMethods.player = 1;
-                        temp_board.applyMove(returned);
+                        temp_board.handleMove(returned);
                         CommonMethods.player = temp_player;
                         score = evaluate(temp_board, player);
                     }
@@ -140,14 +141,19 @@ public class AI {
         return best_move;
     }
 
-    public int evaluate(Board b, int playerTurn) {
+    public int evaluate(Board board, int playerTurn) {
         int sumWhite = 0, sumBlack = 0;
-        for (Piece piece: b.getPieces()) {
-            int pieceValue = piece.evaluate();
-            if (piece.getColor() == Color.WHITE) {
-                sumBlack += pieceValue;
-            } else {
-                sumWhite += pieceValue;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                Square square = board.getSquares()[i][j];
+                Piece piece = square.getPiece();
+                if(piece == null) continue;
+                int pieceValue = piece.evaluate(square);
+                if (piece.getColor() == Color.WHITE) {
+                    sumBlack += pieceValue;
+                } else {
+                    sumWhite += pieceValue;
+                }
             }
         }
         if (playerTurn == 1) {
