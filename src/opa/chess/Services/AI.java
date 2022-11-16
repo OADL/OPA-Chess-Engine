@@ -17,8 +17,7 @@ public class AI {
         if (CommonMethods.stop) {
             return best_move;
         }
-        Board temp_board = new Board();
-        temp_board = temp_board.copy(b,temp_board);
+        Board temp_board = b.copy();
         int temp_player = CommonMethods.player;
         boolean temp_castl = CommonMethods.castling;
         boolean temp_en_pt = CommonMethods.en_passant;
@@ -36,7 +35,7 @@ public class AI {
             CommonMethods.castling = temp_castl;
             CommonMethods.white_king_checked = temp_w_k_c;
             CommonMethods.black_king_checked = temp_w_b_c;
-            temp_board = temp_board.copy(b, temp_board);
+            temp_board = b.copy();
             if (best_move == null) {
                 best_move = m;
             }
