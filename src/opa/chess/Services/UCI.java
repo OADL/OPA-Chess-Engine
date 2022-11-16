@@ -1,28 +1,23 @@
 package opa.chess.Services;
 
+import opa.chess.Config.Configurations;
+import opa.chess.Config.Constants;
 import opa.chess.Models.Board;
-import opa.chess.Config.CommonMethods;
 
 import java.util.Scanner;
 import javax.swing.Timer;
 
 public class UCI {
 
-    private static final String NAME_VERSION = "OPA-Chess AlphaBeta v0.01";
-    private static final String AUTHOR = "OPA";
     private static AI ai;
     private static Board board;
     private static Thread thread;
     private static Timer timer;
 
     public UCI() {
-        timer = new Timer(29000, arg0 -> CommonMethods.stop = true);
+        timer = new Timer(29000, arg0 -> Configurations.stop = true);
         timer.setRepeats(false);
-        CommonMethods.player = 1;
-        CommonMethods.en_passant = false;
-        CommonMethods.castling = false;
-        CommonMethods.white_king_checked = false;
-        CommonMethods.black_king_checked = false;
+        Configurations.player = 1;
         ai = new AI();
         board = new Board();
         init();
@@ -54,8 +49,8 @@ public class UCI {
     }
 
     private static void init() {
-        System.out.println("id name " + NAME_VERSION);
-        System.out.println("id Author " + AUTHOR);
+        System.out.println("id name " + Constants.NAME_VERSION);
+        System.out.println("id Author " + Constants.AUTHOR);
         //options available
         System.out.println("uciok");
     }
@@ -71,11 +66,11 @@ public class UCI {
 
     private static void go() {//this will generate the next nove and print it
         thread = new Thread(() -> {
-            CommonMethods.stop = false;
+            Configurations.stop = false;
             timer.start();
-            String move = ai.alphaBeta(CommonMethods.player, board, Integer.MIN_VALUE, Integer.MAX_VALUE, CommonMethods.depth);
+            String move = ai.alphaBeta(Configurations.player, board, Integer.MIN_VALUE, Integer.MAX_VALUE, Configurations.depth);
             timer.stop();
-            CommonMethods.stop = false;
+            Configurations.stop = false;
             System.out.println("bestmove " + move);
         });
         thread.start();
@@ -94,19 +89,11 @@ public class UCI {
         if (Input.startsWith("startpos")) {
             if (Input.contains("startpos ")) {
                 Input = Input.replace("startpos ", "");
-                CommonMethods.player = 1;
-                CommonMethods.en_passant = false;
-                CommonMethods.castling = false;
-                CommonMethods.white_king_checked = false;
-                CommonMethods.black_king_checked = false;
+                Configurations.player = 1;
                 board = new Board();
             } else {
                 Input = Input.replace("startpos", "");
-                CommonMethods.player = 1;
-                CommonMethods.en_passant = false;
-                CommonMethods.castling = false;
-                CommonMethods.white_king_checked = false;
-                CommonMethods.black_king_checked = false;
+                Configurations.player = 1;
                 board = new Board();
             }
         } else if (Input.startsWith("fen")) {

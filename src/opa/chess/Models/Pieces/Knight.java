@@ -25,10 +25,8 @@ public class Knight extends Piece {
             return MoveType.INVALID;
         }
         if ((destination.getY() == source.getY() + 2 || destination.getY() == source.getY() - 2) && (destination.getX() == source.getX() + 1 || destination.getX() == source.getX() - 1)) {
-            CommonMethods.en_passant = false;
             return (!blocked(destination.getX(), destination.getY(), source, board.getSquares()))? MoveType.NORMAL : MoveType.INVALID;
         } else if ((destination.getY() == source.getY() + 1 || destination.getY() == source.getY() - 1) && (destination.getX() == source.getX() + 2 || destination.getX() == source.getX() - 2)) {
-            CommonMethods.en_passant = false;
             return (!blocked(destination.getX(), destination.getY(), source, board.getSquares()))? MoveType.NORMAL : MoveType.INVALID;
         }
         return MoveType.INVALID;

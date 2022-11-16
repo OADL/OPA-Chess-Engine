@@ -25,13 +25,10 @@ public class Queen extends Piece {
             return MoveType.INVALID;
         }
         if (Math.abs(destination.getY() - source.getY()) == Math.abs(destination.getX() - source.getX())) {
-            CommonMethods.en_passant = false;
             return (!blocked(destination.getX(), destination.getY(), source, board.getSquares()))? MoveType.NORMAL : MoveType.INVALID;
         } else if (destination.getY() != source.getY() && destination.getX() == source.getX()) {
-            CommonMethods.en_passant = false;
             return (!blocked(destination.getX(), destination.getY(), source, board.getSquares()))? MoveType.NORMAL : MoveType.INVALID;
         } else if (destination.getY() == source.getY()) {
-            CommonMethods.en_passant = false;
             return (!blocked(destination.getX(), destination.getY(), source, board.getSquares()))? MoveType.NORMAL : MoveType.INVALID;
         }
         return MoveType.INVALID;

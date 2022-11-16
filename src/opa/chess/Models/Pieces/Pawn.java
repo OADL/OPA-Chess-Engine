@@ -26,7 +26,6 @@ public class Pawn extends Piece {
         if (this.color == Color.BLACK) { // UP going down
             if ((destination.getY() == source.getY() + 1) && destination.getX() == source.getX()) {// check if this is a 1 step forward
                 if (!blocked(destination.getX(), destination.getY(), source, board.getSquares())) {
-                    CommonMethods.en_passant = false;
                     return (destination.getY() == 7)? MoveType.PROMOTION : MoveType.NORMAL;
                 } else {
                     return MoveType.INVALID;
@@ -34,7 +33,6 @@ public class Pawn extends Piece {
             } else if ((destination.getY() == source.getY() + 2) && destination.getX() == source.getX()) { //check if this is a 2 step forward
                 if (this.firstMove) { // check if this is the first move
                     if (!blocked(destination.getX(), destination.getY(), source, board.getSquares())) {
-                        CommonMethods.en_passant = true;
                         return MoveType.NORMAL;
                     }
                 }
@@ -45,7 +43,6 @@ public class Pawn extends Piece {
         } else { // DOWN going up
             if ((destination.getY() == source.getY() - 1) && destination.getX() == source.getX()) {// check if this is a 1 step forward
                 if (!blocked(destination.getX(), destination.getY(), source, board.getSquares())) {
-                    CommonMethods.en_passant = false;
                     return (destination.getY() == 0)? MoveType.PROMOTION : MoveType.NORMAL;
                 } else {
                     return MoveType.INVALID;
@@ -53,7 +50,6 @@ public class Pawn extends Piece {
             } else if ((destination.getY() == source.getY() - 2) && destination.getX() == source.getX()) { //check if this is a 2 step forward
                 if (this.firstMove) { // check if this is the first move
                     if (!blocked(destination.getX(), destination.getY(), source, board.getSquares())) {
-                        CommonMethods.en_passant = true;
                         return MoveType.NORMAL;
                     }
                 }

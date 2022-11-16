@@ -33,12 +33,9 @@ public class King extends Piece {
         if (destination.getX() < 0 || destination.getX() > 7 || destination.getY() > 7 || destination.getY() < 0) { //checks if out of boundary
             return MoveType.INVALID;
         }
-        if ((destination.getX() == 2 || destination.getX() == 6) && (destination.getY() == 0 || destination.getY() == 7)) {//all possible castling possitions
+        if ((destination.getX() == 2 || destination.getX() == 6) && (destination.getY() == 0 || destination.getY() == 7)) {//all possible castling positions
             if (this.firstMove) {//checks if this is the first move for the King
-                if (((this.color == Color.WHITE) && CommonMethods.white_king_checked) || ((this.color == Color.BLACK) && CommonMethods.black_king_checked))//if checked cant castle
-                {
-                    return MoveType.INVALID;
-                }
+                if (isChecked()) return MoveType.INVALID;
                 int rookX = destination.getX() > source.getX() ? 7 : 0;//get the rooks position
                 Piece rook = board.findSquare(rookX, destination.getY()).getPiece();
                 if (rook != null && rook.getType() == ROOK && rook.isFirstMove()) {//checks if the rooks hasn't moved yet
@@ -53,13 +50,11 @@ public class King extends Piece {
                             }
                         }
                     }
-                    CommonMethods.castling = true;
                     return MoveType.CASTLING;
                 }
             }
         }
         if ((Math.abs(destination.getY() - source.getY()) == 1 || Math.abs(destination.getY() - source.getY()) == 0) && (Math.abs(destination.getX() - source.getX()) == 1 || Math.abs(destination.getX() - source.getX()) == 0)) {
-            CommonMethods.en_passant = false;
             return (!blocked(destination.getX(), destination.getY(), source, board.getSquares()))? MoveType.NORMAL : MoveType.INVALID;
         }
         return MoveType.INVALID;

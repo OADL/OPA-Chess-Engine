@@ -11,17 +11,6 @@ import java.util.Random;
 
 public class CommonMethods {
 
-    public static boolean stop = false;
-
-    public static boolean en_passant = false;
-    public static boolean castling = false;
-
-    public static boolean white_king_checked = false;
-    public static boolean black_king_checked = false;
-
-    public static int depth = 4;
-    public static int player = 1;
-
     public static int convert(char C) {
         int I = switch (C) {
             case 'a' -> Character.getNumericValue('0');

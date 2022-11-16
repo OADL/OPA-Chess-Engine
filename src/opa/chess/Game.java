@@ -1,6 +1,6 @@
 package opa.chess;
 
-import opa.chess.Config.CommonMethods;
+import opa.chess.Config.Configurations;
 import opa.chess.Enums.Color;
 import opa.chess.Models.Board;
 import opa.chess.Services.AI;
@@ -25,19 +25,14 @@ public class Game {
 
     public Game() {
         ai = new AI();
-        timer = new Timer(29000, arg0 -> CommonMethods.stop = true);
+        timer = new Timer(29000, arg0 -> Configurations.stop = true);
         timer.setRepeats(false);
     }
 
     public void start() {
         Scanner input = new Scanner(System.in);
         while (true) {
-            CommonMethods.player = 1;
-            CommonMethods.en_passant = false;
-            CommonMethods.castling = false;
-            CommonMethods.white_king_checked = false;
-            CommonMethods.black_king_checked = false;
-
+            Configurations.player = 1;
             System.out.println("============================");
             System.out.println("|   Welcome to OPA Chess   |");
             System.out.println("============================");
@@ -68,11 +63,7 @@ public class Game {
     }
 
     private void CONSOLEoption() {
-        CommonMethods.player = 1;
-        CommonMethods.en_passant = false;
-        CommonMethods.castling = false;
-        CommonMethods.white_king_checked = false;
-        CommonMethods.black_king_checked = false;
+        Configurations.player = 1;
         board = new Board();
         System.out.println("============================");
         System.out.println("|       Console Mode       |");
@@ -125,7 +116,7 @@ public class Game {
             System.out.println("=================================");
             if (i2.equalsIgnoreCase("2")) {
                 AIturn(0);
-                CommonMethods.stop = false;
+                Configurations.stop = false;
             }
         }
         while (true) {
@@ -135,7 +126,7 @@ public class Game {
             }
             if (Hturn(0)) {
                 AIturn(0);
-                CommonMethods.stop = false;
+                Configurations.stop = false;
             } else {
                 break;
             }
@@ -169,7 +160,7 @@ public class Game {
                 System.out.println("========== Game Ended ==========");
                 break;
             }
-            if (!Hturn(CommonMethods.player)) {
+            if (!Hturn(Configurations.player)) {
                 break;
             }
         }
@@ -190,9 +181,9 @@ public class Game {
                 if (sc.hasNext()) {
                     String Input = sc.nextLine();
                     if (Input.equalsIgnoreCase("stop")) {
-                        CommonMethods.stop = true;
+                        Configurations.stop = true;
                     } else if (Input.equalsIgnoreCase("end")) {
-                        CommonMethods.stop = true;
+                        Configurations.stop = true;
                         Quit = true;
                         break;
                     }
@@ -205,8 +196,8 @@ public class Game {
                 System.out.println("========== Game Ended ==========");
                 break;
             }
-            AIturn(CommonMethods.player);
-            CommonMethods.stop = false;
+            AIturn(Configurations.player);
+            Configurations.stop = false;
             if (Quit) {
                 Quit = false;
                 System.out.println("========== Game Ended ==========");
@@ -233,11 +224,7 @@ public class Game {
         }
         System.out.println("Game Loaded!");
         String[] loadedMoves = loadedFile.split(" ");
-        CommonMethods.player = 1;
-        CommonMethods.en_passant = false;
-        CommonMethods.castling = false;
-        CommonMethods.white_king_checked = false;
-        CommonMethods.black_king_checked = false;
+        Configurations.player = 1;
         board = new Board();
         System.out.println("========== Game Started =========");
         for (String w1 : loadedMoves) {
@@ -275,10 +262,10 @@ public class Game {
         } else {
             System.out.print("\nAI " + x + " Turn: \n> Thinking ..\n");
         }
-        CommonMethods.stop = false;
+        Configurations.stop = false;
         long startTime = System.nanoTime();
         timer.start();
-        String ai_move = ai.alphaBeta(CommonMethods.player, board, Integer.MIN_VALUE, Integer.MAX_VALUE, CommonMethods.depth);
+        String ai_move = ai.alphaBeta(Configurations.player, board, Integer.MIN_VALUE, Integer.MAX_VALUE, Configurations.depth);
         timer.stop();
         if (ai_move != null) {
             System.out.println("> AI Played: " + ai_move);
@@ -325,15 +312,15 @@ public class Game {
     }
 
     private boolean isGameFinished() {
-        ArrayList<String> AvailableMoves = board.nextMoves(CommonMethods.player);
+        ArrayList<String> AvailableMoves = board.nextMoves(Configurations.player);
         if (AvailableMoves.isEmpty()) {
-            if (CommonMethods.player == 1 && board.isKingChecked(Color.WHITE)) {
+            if (Configurations.player == 1 && board.isKingChecked(Color.WHITE)) {
                 System.out.println("   ==||Checkmate Black Won||==");
-            } else if (CommonMethods.player == 1 && !board.isKingChecked(Color.WHITE)) {
+            } else if (Configurations.player == 1 && !board.isKingChecked(Color.WHITE)) {
                 System.out.println("    ====== Stalemate =====");
-            } else if (CommonMethods.player == 2 && board.isKingChecked(Color.BLACK)) {
+            } else if (Configurations.player == 2 && board.isKingChecked(Color.BLACK)) {
                 System.out.println("   ==||Checkmate White Won||==");
-            } else if (CommonMethods.player == 2 && !board.isKingChecked(Color.BLACK)) {
+            } else if (Configurations.player == 2 && !board.isKingChecked(Color.BLACK)) {
                 System.out.println("    ====== Stalemate =====");
             } else {
                 System.err.println("      ====== ERROR =====");

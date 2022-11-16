@@ -1,8 +1,8 @@
 package opa.chess.Services;
 
+import opa.chess.Config.Configurations;
 import opa.chess.Enums.Color;
 import opa.chess.Models.Board;
-import opa.chess.Config.CommonMethods;
 import opa.chess.Models.Pieces.Piece;
 import opa.chess.Models.Square;
 
@@ -15,60 +15,47 @@ public class AI {
         if (Thread.currentThread().isInterrupted()) {
             return best_move;
         }
-        if (CommonMethods.stop) {
+        if (Configurations.stop) {
             return best_move;
         }
-        Board temp_board = b.copy();
-        int temp_player = CommonMethods.player;
-        boolean temp_castl = CommonMethods.castling;
-        boolean temp_en_pt = CommonMethods.en_passant;
-        boolean temp_w_k_c = CommonMethods.white_king_checked;
-        boolean temp_w_b_c = CommonMethods.black_king_checked;
-        CommonMethods.player = player;
+        int temp_player = Configurations.player;
+        Configurations.player = player;
         ArrayList<String> moves = b.nextMoves(player);
-        CommonMethods.player = temp_player;
+        Configurations.player = temp_player;
         if (moves.isEmpty()) {
             return null;
         }
         for (String m : moves) {
-            CommonMethods.player = temp_player;
-            CommonMethods.en_passant = temp_en_pt;
-            CommonMethods.castling = temp_castl;
-            CommonMethods.white_king_checked = temp_w_k_c;
-            CommonMethods.black_king_checked = temp_w_b_c;
-            temp_board = b.copy();
+            Configurations.player = temp_player;
+            Board temp_board = b.copy();
             if (best_move == null) {
                 best_move = m;
             }
             int score;
-            CommonMethods.player = player;
+            Configurations.player = player;
             temp_board.handleMove(m);
-            CommonMethods.player = temp_player;
-            if (CommonMethods.player == player) {
+            Configurations.player = temp_player;
+            if (Configurations.player == player) {
                 if (depth <= 0) {
                     score = evaluate(temp_board, player);
                 } else {
                     String returned;
                     if (player == 1) {
                         returned = alphaBeta(2, temp_board, alpha, beta, depth - 1);
-                        CommonMethods.player = 2;
+                        Configurations.player = 2;
                         temp_board.handleMove(returned);
-                        CommonMethods.player = temp_player;
+                        Configurations.player = temp_player;
                         score = evaluate(temp_board, player);
                     } else {
                         returned = alphaBeta(1, temp_board, alpha, beta, depth - 1);
-                        CommonMethods.player = 1;
+                        Configurations.player = 1;
                         temp_board.handleMove(returned);
-                        CommonMethods.player = temp_player;
+                        Configurations.player = temp_player;
                         score = evaluate(temp_board, player);
                     }
                 }
-                if ((CommonMethods.player == 2 && CommonMethods.white_king_checked) || (CommonMethods.player == 1 && CommonMethods.black_king_checked)) {
-                    CommonMethods.player = temp_player;
-                    CommonMethods.en_passant = temp_en_pt;
-                    CommonMethods.castling = temp_castl;
-                    CommonMethods.white_king_checked = temp_w_k_c;
-                    CommonMethods.black_king_checked = temp_w_b_c;
+                if ((Configurations.player == 2 && b.isKingChecked(Color.WHITE)) || (Configurations.player == 1 && b.isKingChecked(Color.BLACK))) {
+                    Configurations.player = temp_player;
                     best_move = m;
                     return best_move;
                 }
@@ -77,11 +64,7 @@ public class AI {
                     alpha = score;
                 }
                 if (beta <= alpha) {
-                    CommonMethods.player = temp_player;
-                    CommonMethods.en_passant = temp_en_pt;
-                    CommonMethods.castling = temp_castl;
-                    CommonMethods.white_king_checked = temp_w_k_c;
-                    CommonMethods.black_king_checked = temp_w_b_c;
+                    Configurations.player = temp_player;
                     best_move = m;
                     return best_move;
                 }
@@ -92,24 +75,20 @@ public class AI {
                     String returned;
                     if (player == 1) {
                         returned = alphaBeta(2, temp_board, alpha, beta, depth - 1);
-                        CommonMethods.player = 2;
+                        Configurations.player = 2;
                         temp_board.handleMove(returned);
-                        CommonMethods.player = temp_player;
+                        Configurations.player = temp_player;
                         score = evaluate(temp_board, player);
                     } else {
                         returned = alphaBeta(1, temp_board, alpha, beta, depth - 1);
-                        CommonMethods.player = 1;
+                        Configurations.player = 1;
                         temp_board.handleMove(returned);
-                        CommonMethods.player = temp_player;
+                        Configurations.player = temp_player;
                         score = evaluate(temp_board, player);
                     }
                 }
-                if ((CommonMethods.player == 1 && CommonMethods.white_king_checked) || (CommonMethods.player == 2 && CommonMethods.black_king_checked)) {
-                    CommonMethods.player = temp_player;
-                    CommonMethods.en_passant = temp_en_pt;
-                    CommonMethods.castling = temp_castl;
-                    CommonMethods.white_king_checked = temp_w_k_c;
-                    CommonMethods.black_king_checked = temp_w_b_c;
+                if ((Configurations.player == 1 && b.isKingChecked(Color.WHITE)) || (Configurations.player == 2 && b.isKingChecked(Color.BLACK))) {
+                    Configurations.player = temp_player;
                     best_move = m;
                     return best_move;
                 }
@@ -118,30 +97,22 @@ public class AI {
                     beta = score;
                 }
                 if (beta <= alpha) {
-                    CommonMethods.player = temp_player;
-                    CommonMethods.en_passant = temp_en_pt;
-                    CommonMethods.castling = temp_castl;
-                    CommonMethods.white_king_checked = temp_w_k_c;
-                    CommonMethods.black_king_checked = temp_w_b_c;
+                    Configurations.player = temp_player;
                     return best_move;
                 }
             }
             if (Thread.currentThread().isInterrupted()) {
                 return best_move;
             }
-            if (CommonMethods.stop) {
+            if (Configurations.stop) {
                 return best_move;
             }
         }
-        CommonMethods.player = temp_player;
-        CommonMethods.en_passant = temp_en_pt;
-        CommonMethods.castling = temp_castl;
-        CommonMethods.white_king_checked = temp_w_k_c;
-        CommonMethods.black_king_checked = temp_w_b_c;
+        Configurations.player = temp_player;
         return best_move;
     }
 
-    public int evaluate(Board board, int playerTurn) {
+    private int evaluate(Board board, int playerTurn) {
         int sumWhite = 0, sumBlack = 0;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {

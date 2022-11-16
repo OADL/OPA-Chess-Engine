@@ -1,6 +1,7 @@
 package opa.chess.Models;
 
 import opa.chess.Config.CommonMethods;
+import opa.chess.Config.Configurations;
 import opa.chess.Enums.Color;
 import opa.chess.Enums.MoveType;
 import opa.chess.Enums.PieceType;
@@ -11,7 +12,6 @@ import java.util.ArrayList;
 import java.io.PrintStream;
 
 import static opa.chess.Config.CommonMethods.createEmptyBoard;
-import static opa.chess.Enums.PieceType.*;
 
 public class Board {
 
@@ -119,7 +119,7 @@ public class Board {
 
         MoveType moveType = piece.checkMove(source, destination, tempBoard);
 
-        if ((piece.getColor() == Color.WHITE && CommonMethods.player == 2) || (piece.getColor() == Color.BLACK && CommonMethods.player == 1)) {
+        if ((piece.getColor() == Color.WHITE && Configurations.player == 2) || (piece.getColor() == Color.BLACK && Configurations.player == 1)) {
             return false;
         }
         if (move.length() == 4 && moveType == MoveType.PROMOTION) {//reach end of board without promotion
@@ -134,13 +134,9 @@ public class Board {
             Square rook = findSquare(rookX, Y2, tempBoard.getSquares());
             Board castlingTempBoard = copy();
             Square castlingTempKing = findSquare(X1, Y1, castlingTempBoard.getSquares());
-            boolean tempCastling = CommonMethods.castling;
-            boolean tempEnPassant = CommonMethods.en_passant;
             if(castlingTempKing == null || rook == null) return false;
             if (rookX == 7) {
                 for (int newX = X1 + 1 ; newX < rookX ; newX++) {
-                    CommonMethods.castling = tempCastling;
-                    CommonMethods.en_passant = tempEnPassant;
                     applyMove(castlingTempKing, findSquare(newX,Y1, castlingTempBoard.getSquares()));
                     castlingTempKing = findSquare(newX,Y1, castlingTempBoard.getSquares());
                     if (kingRisked(castlingTempKing, castlingTempBoard)) {
@@ -149,8 +145,6 @@ public class Board {
                 }
             } else {
                 for (int newX = X1 - 1 ; newX > rookX+1 ; newX--) {
-                    CommonMethods.castling = tempCastling;
-                    CommonMethods.en_passant = tempEnPassant;
                     applyMove(castlingTempKing, findSquare(newX,Y1, castlingTempBoard.getSquares()));
                     castlingTempKing = findSquare(newX,Y1, castlingTempBoard.getSquares());
                     if (kingRisked(castlingTempKing, castlingTempBoard)) {
@@ -159,12 +153,9 @@ public class Board {
                 }
             }
             applyMove(rook, findSquare(rookX > 0 ? 5 : 3,Y2));
-            CommonMethods.castling = false;
-            CommonMethods.en_passant = tempEnPassant;
         }
 
         if (Math.abs(X1 - X2) == 1 && moveType == MoveType.EN_PASSANT) {
-            CommonMethods.en_passant = false;
             applyEnPassantEat(source, destination, tempBoard.getDead(), tempBoard.getSquares());
         }else{
             applyEatIfAvailable(source, destination, tempBoard.getDead());
@@ -183,10 +174,10 @@ public class Board {
         }
         if(king != null && king.getPiece() != null) ((King)king.getPiece()).setChecked(false);
 
-        if (CommonMethods.player == 1) {
-            CommonMethods.player = 2;
+        if (Configurations.player == 1) {
+            Configurations.player = 2;
         } else {
-            CommonMethods.player = 1;
+            Configurations.player = 1;
         }
         this.moves.add(new Move(piece,source,destination,moveType));
         this.squares = tempBoard.getSquares();
@@ -272,11 +263,7 @@ public class Board {
     public ArrayList<String> nextMoves(int player) {
         ArrayList<String> moves = new ArrayList<>();
         Board temp_board = copy();
-        int temp_player = CommonMethods.player;
-        boolean temp_castl = CommonMethods.castling;
-        boolean temp_en_pt = CommonMethods.en_passant;
-        boolean temp_w_k_c = CommonMethods.white_king_checked;
-        boolean temp_w_b_c = CommonMethods.black_king_checked;
+        int temp_player = Configurations.player;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 Square p = temp_board.squares[i][j];
@@ -289,11 +276,7 @@ public class Board {
                     switch (p.getPiece().getType()) {
                         case PAWN:
                             if (p.getPiece().getColor() == Color.WHITE) {
-                                CommonMethods.player = temp_player;
-                                CommonMethods.en_passant = temp_en_pt;
-                                CommonMethods.castling = temp_castl;
-                                CommonMethods.white_king_checked = temp_w_k_c;
-                                CommonMethods.black_king_checked = temp_w_b_c;
+                                Configurations.player = temp_player;
                                 temp_board = copy();
                                 temp_y = y - 1;
                                 if (temp_y == 0) {
@@ -308,11 +291,7 @@ public class Board {
                                         moves.add(s);
                                     }
                                 }
-                                CommonMethods.player = temp_player;
-                                CommonMethods.en_passant = temp_en_pt;
-                                CommonMethods.castling = temp_castl;
-                                CommonMethods.white_king_checked = temp_w_k_c;
-                                CommonMethods.black_king_checked = temp_w_b_c;
+                                Configurations.player = temp_player;
                                 temp_board = copy();
                                 temp_y = y - 1;
                                 temp_x = x - 1;
@@ -328,11 +307,7 @@ public class Board {
                                         moves.add(s);
                                     }
                                 }
-                                CommonMethods.player = temp_player;
-                                CommonMethods.en_passant = temp_en_pt;
-                                CommonMethods.castling = temp_castl;
-                                CommonMethods.white_king_checked = temp_w_k_c;
-                                CommonMethods.black_king_checked = temp_w_b_c;
+                                Configurations.player = temp_player;
                                 temp_board = copy();
                                 temp_y = y - 1;
                                 temp_x = x + 1;
@@ -348,41 +323,25 @@ public class Board {
                                         moves.add(s);
                                     }
                                 }
-                                CommonMethods.player = temp_player;
-                                CommonMethods.en_passant = temp_en_pt;
-                                CommonMethods.castling = temp_castl;
-                                CommonMethods.white_king_checked = temp_w_k_c;
-                                CommonMethods.black_king_checked = temp_w_b_c;
+                                Configurations.player = temp_player;
                                 temp_board = copy();
                                 if (temp_y != 0 && temp_board.handleMove(CommonMethods.reverseConvert(x, y, x, temp_y))) {
                                     moves.add(CommonMethods.reverseConvert(x, y, x, temp_y));
                                 }
-                                CommonMethods.player = temp_player;
-                                CommonMethods.en_passant = temp_en_pt;
-                                CommonMethods.castling = temp_castl;
-                                CommonMethods.white_king_checked = temp_w_k_c;
-                                CommonMethods.black_king_checked = temp_w_b_c;
+                                Configurations.player = temp_player;
                                 temp_board = copy();
                                 temp_y = y - 2;
                                 if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, x, temp_y))) {
                                     moves.add(CommonMethods.reverseConvert(x, y, x, temp_y));
                                 }
-                                CommonMethods.player = temp_player;
-                                CommonMethods.en_passant = temp_en_pt;
-                                CommonMethods.castling = temp_castl;
-                                CommonMethods.white_king_checked = temp_w_k_c;
-                                CommonMethods.black_king_checked = temp_w_b_c;
+                                Configurations.player = temp_player;
                                 temp_board = copy();
                                 temp_y = y - 1;
                                 temp_x = x - 1;
                                 if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                     moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                                 }
-                                CommonMethods.player = temp_player;
-                                CommonMethods.en_passant = temp_en_pt;
-                                CommonMethods.castling = temp_castl;
-                                CommonMethods.white_king_checked = temp_w_k_c;
-                                CommonMethods.black_king_checked = temp_w_b_c;
+                                Configurations.player = temp_player;
                                 temp_board = copy();
                                 temp_y = y - 1;
                                 temp_x = x + 1;
@@ -390,11 +349,7 @@ public class Board {
                                     moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                                 }
                             } else {
-                                CommonMethods.player = temp_player;
-                                CommonMethods.en_passant = temp_en_pt;
-                                CommonMethods.castling = temp_castl;
-                                CommonMethods.white_king_checked = temp_w_k_c;
-                                CommonMethods.black_king_checked = temp_w_b_c;
+                                Configurations.player = temp_player;
                                 temp_board = copy();
                                 temp_y = y + 1;
                                 if (temp_y == 7) {
@@ -409,41 +364,25 @@ public class Board {
                                         moves.add(s);
                                     }
                                 }
-                                CommonMethods.player = temp_player;
-                                CommonMethods.en_passant = temp_en_pt;
-                                CommonMethods.castling = temp_castl;
-                                CommonMethods.white_king_checked = temp_w_k_c;
-                                CommonMethods.black_king_checked = temp_w_b_c;
+                                Configurations.player = temp_player;
                                 temp_board = copy();
                                 if (temp_y != 7 && temp_board.handleMove(CommonMethods.reverseConvert(x, y, x, temp_y))) {
                                     moves.add(CommonMethods.reverseConvert(x, y, x, temp_y));
                                 }
-                                CommonMethods.player = temp_player;
-                                CommonMethods.en_passant = temp_en_pt;
-                                CommonMethods.castling = temp_castl;
-                                CommonMethods.white_king_checked = temp_w_k_c;
-                                CommonMethods.black_king_checked = temp_w_b_c;
+                                Configurations.player = temp_player;
                                 temp_board = copy();
                                 temp_y = y + 2;
                                 if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, x, temp_y))) {
                                     moves.add(CommonMethods.reverseConvert(x, y, x, temp_y));
                                 }
-                                CommonMethods.player = temp_player;
-                                CommonMethods.en_passant = temp_en_pt;
-                                CommonMethods.castling = temp_castl;
-                                CommonMethods.white_king_checked = temp_w_k_c;
-                                CommonMethods.black_king_checked = temp_w_b_c;
+                                Configurations.player = temp_player;
                                 temp_board = copy();
                                 temp_y = y + 1;
                                 temp_x = x - 1;
                                 if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                     moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                                 }
-                                CommonMethods.player = temp_player;
-                                CommonMethods.en_passant = temp_en_pt;
-                                CommonMethods.castling = temp_castl;
-                                CommonMethods.white_king_checked = temp_w_k_c;
-                                CommonMethods.black_king_checked = temp_w_b_c;
+                                Configurations.player = temp_player;
                                 temp_board = copy();
                                 temp_y = y + 1;
                                 temp_x = x + 1;
@@ -461,20 +400,14 @@ public class Board {
                                 if (temp_x >= 8) {
                                     break;
                                 } else if (temp_x < x) {
-                                    CommonMethods.player = temp_player;
-                                    CommonMethods.castling = temp_castl;
-                                    CommonMethods.white_king_checked = temp_w_k_c;
-                                    CommonMethods.black_king_checked = temp_w_b_c;
+                                    Configurations.player = temp_player;
                                     temp_board = copy();
                                     if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, y))) {
                                         moves.add(CommonMethods.reverseConvert(x, y, temp_x, y));
                                     }
                                     temp_x--;
                                 } else if (temp_x > x) {
-                                    CommonMethods.player = temp_player;
-                                    CommonMethods.castling = temp_castl;
-                                    CommonMethods.white_king_checked = temp_w_k_c;
-                                    CommonMethods.black_king_checked = temp_w_b_c;
+                                    Configurations.player = temp_player;
                                     temp_board = copy();
                                     if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, y))) {
                                         moves.add(CommonMethods.reverseConvert(x, y, temp_x, y));
@@ -490,20 +423,14 @@ public class Board {
                                 if (temp_y >= 8) {
                                     break;
                                 } else if (temp_y < y) {
-                                    CommonMethods.player = temp_player;
-                                    CommonMethods.castling = temp_castl;
-                                    CommonMethods.white_king_checked = temp_w_k_c;
-                                    CommonMethods.black_king_checked = temp_w_b_c;
+                                    Configurations.player = temp_player;
                                     temp_board = copy();
                                     if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, x, temp_y))) {
                                         moves.add(CommonMethods.reverseConvert(x, y, x, temp_y));
                                     }
                                     temp_y--;
                                 } else if (temp_y > y) {
-                                    CommonMethods.player = temp_player;
-                                    CommonMethods.castling = temp_castl;
-                                    CommonMethods.white_king_checked = temp_w_k_c;
-                                    CommonMethods.black_king_checked = temp_w_b_c;
+                                    Configurations.player = temp_player;
                                     temp_board = copy();
                                     if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, x, temp_y))) {
                                         moves.add(CommonMethods.reverseConvert(x, y, x, temp_y));
@@ -523,10 +450,7 @@ public class Board {
                                 if (temp_x >= 8) {
                                     break;
                                 } else if (temp_x < x) {
-                                    CommonMethods.player = temp_player;
-                                    CommonMethods.castling = temp_castl;
-                                    CommonMethods.white_king_checked = temp_w_k_c;
-                                    CommonMethods.black_king_checked = temp_w_b_c;
+                                    Configurations.player = temp_player;
                                     temp_board = copy();
                                     if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                         moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
@@ -535,10 +459,7 @@ public class Board {
                                     temp_x--;
                                     temp_y--;
                                 } else if (temp_x > x) {
-                                    CommonMethods.player = temp_player;
-                                    CommonMethods.castling = temp_castl;
-                                    CommonMethods.white_king_checked = temp_w_k_c;
-                                    CommonMethods.black_king_checked = temp_w_b_c;
+                                    Configurations.player = temp_player;
                                     temp_board = copy();
                                     if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                         moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
@@ -557,10 +478,7 @@ public class Board {
                                 if (temp_y >= 8) {
                                     break;
                                 } else if (temp_y < y) {
-                                    CommonMethods.player = temp_player;
-                                    CommonMethods.castling = temp_castl;
-                                    CommonMethods.white_king_checked = temp_w_k_c;
-                                    CommonMethods.black_king_checked = temp_w_b_c;
+                                    Configurations.player = temp_player;
                                     temp_board = copy();
                                     if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                         moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
@@ -568,10 +486,7 @@ public class Board {
                                     temp_y--;
                                     temp_x++;
                                 } else if (temp_y > y) {
-                                    CommonMethods.player = temp_player;
-                                    CommonMethods.castling = temp_castl;
-                                    CommonMethods.white_king_checked = temp_w_k_c;
-                                    CommonMethods.black_king_checked = temp_w_b_c;
+                                    Configurations.player = temp_player;
                                     temp_board = copy();
                                     if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                         moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
@@ -584,80 +499,56 @@ public class Board {
                         case KNIGHT:
                             temp_x = x - 1;
                             temp_y = y - 2;
-                            CommonMethods.player = temp_player;
-                            CommonMethods.castling = temp_castl;
-                            CommonMethods.white_king_checked = temp_w_k_c;
-                            CommonMethods.black_king_checked = temp_w_b_c;
+                            Configurations.player = temp_player;
                             temp_board = copy();
                             if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                 moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                             }
                             temp_x = x - 1;
                             temp_y = y + 2;
-                            CommonMethods.player = temp_player;
-                            CommonMethods.castling = temp_castl;
-                            CommonMethods.white_king_checked = temp_w_k_c;
-                            CommonMethods.black_king_checked = temp_w_b_c;
+                            Configurations.player = temp_player;
                             temp_board = copy();
                             if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                 moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                             }
                             temp_x = x - 2;
                             temp_y = y - 1;
-                            CommonMethods.player = temp_player;
-                            CommonMethods.castling = temp_castl;
-                            CommonMethods.white_king_checked = temp_w_k_c;
-                            CommonMethods.black_king_checked = temp_w_b_c;
+                            Configurations.player = temp_player;
                             temp_board = copy();
                             if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                 moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                             }
                             temp_x = x - 2;
                             temp_y = y + 1;
-                            CommonMethods.player = temp_player;
-                            CommonMethods.castling = temp_castl;
-                            CommonMethods.white_king_checked = temp_w_k_c;
-                            CommonMethods.black_king_checked = temp_w_b_c;
+                            Configurations.player = temp_player;
                             temp_board = copy();
                             if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                 moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                             }
                             temp_x = x + 1;
                             temp_y = y - 2;
-                            CommonMethods.player = temp_player;
-                            CommonMethods.castling = temp_castl;
-                            CommonMethods.white_king_checked = temp_w_k_c;
-                            CommonMethods.black_king_checked = temp_w_b_c;
+                            Configurations.player = temp_player;
                             temp_board = copy();
                             if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                 moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                             }
                             temp_x = x + 1;
                             temp_y = y + 2;
-                            CommonMethods.player = temp_player;
-                            CommonMethods.castling = temp_castl;
-                            CommonMethods.white_king_checked = temp_w_k_c;
-                            CommonMethods.black_king_checked = temp_w_b_c;
+                            Configurations.player = temp_player;
                             temp_board = copy();
                             if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                 moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                             }
                             temp_x = x + 2;
                             temp_y = y - 1;
-                            CommonMethods.player = temp_player;
-                            CommonMethods.castling = temp_castl;
-                            CommonMethods.white_king_checked = temp_w_k_c;
-                            CommonMethods.black_king_checked = temp_w_b_c;
+                            Configurations.player = temp_player;
                             temp_board = copy();
                             if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                 moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                             }
                             temp_x = x + 2;
                             temp_y = y + 1;
-                            CommonMethods.player = temp_player;
-                            CommonMethods.castling = temp_castl;
-                            CommonMethods.white_king_checked = temp_w_k_c;
-                            CommonMethods.black_king_checked = temp_w_b_c;
+                            Configurations.player = temp_player;
                             temp_board = copy();
                             if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                 moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
@@ -672,20 +563,14 @@ public class Board {
                                 if (temp_x >= 8) {
                                     break;
                                 } else if (temp_x < x) {
-                                    CommonMethods.player = temp_player;
-                                    CommonMethods.castling = temp_castl;
-                                    CommonMethods.white_king_checked = temp_w_k_c;
-                                    CommonMethods.black_king_checked = temp_w_b_c;
+                                    Configurations.player = temp_player;
                                     temp_board = copy();
                                     if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, y))) {
                                         moves.add(CommonMethods.reverseConvert(x, y, temp_x, y));
                                     }
                                     temp_x--;
                                 } else if (temp_x > x) {
-                                    CommonMethods.player = temp_player;
-                                    CommonMethods.castling = temp_castl;
-                                    CommonMethods.white_king_checked = temp_w_k_c;
-                                    CommonMethods.black_king_checked = temp_w_b_c;
+                                    Configurations.player = temp_player;
                                     temp_board = copy();
                                     if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, y))) {
                                         moves.add(CommonMethods.reverseConvert(x, y, temp_x, y));
@@ -701,20 +586,14 @@ public class Board {
                                 if (temp_y >= 8) {
                                     break;
                                 } else if (temp_y < y) {
-                                    CommonMethods.player = temp_player;
-                                    CommonMethods.castling = temp_castl;
-                                    CommonMethods.white_king_checked = temp_w_k_c;
-                                    CommonMethods.black_king_checked = temp_w_b_c;
+                                    Configurations.player = temp_player;
                                     temp_board = copy();
                                     if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, x, temp_y))) {
                                         moves.add(CommonMethods.reverseConvert(x, y, x, temp_y));
                                     }
                                     temp_y--;
                                 } else if (temp_y > y) {
-                                    CommonMethods.player = temp_player;
-                                    CommonMethods.castling = temp_castl;
-                                    CommonMethods.white_king_checked = temp_w_k_c;
-                                    CommonMethods.black_king_checked = temp_w_b_c;
+                                    Configurations.player = temp_player;
                                     temp_board = copy();
                                     if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, x, temp_y))) {
                                         moves.add(CommonMethods.reverseConvert(x, y, x, temp_y));
@@ -732,10 +611,7 @@ public class Board {
                                 if (temp_x >= 8) {
                                     break;
                                 } else if (temp_x < x) {
-                                    CommonMethods.player = temp_player;
-                                    CommonMethods.castling = temp_castl;
-                                    CommonMethods.white_king_checked = temp_w_k_c;
-                                    CommonMethods.black_king_checked = temp_w_b_c;
+                                    Configurations.player = temp_player;
                                     temp_board = copy();
                                     if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                         moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
@@ -743,10 +619,7 @@ public class Board {
                                     temp_x--;
                                     temp_y--;
                                 } else if (temp_x > x) {
-                                    CommonMethods.player = temp_player;
-                                    CommonMethods.castling = temp_castl;
-                                    CommonMethods.white_king_checked = temp_w_k_c;
-                                    CommonMethods.black_king_checked = temp_w_b_c;
+                                    Configurations.player = temp_player;
                                     temp_board = copy();
                                     if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                         moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
@@ -765,10 +638,7 @@ public class Board {
                                 if (temp_y >= 8) {
                                     break;
                                 } else if (temp_y < y) {
-                                    CommonMethods.player = temp_player;
-                                    CommonMethods.castling = temp_castl;
-                                    CommonMethods.white_king_checked = temp_w_k_c;
-                                    CommonMethods.black_king_checked = temp_w_b_c;
+                                    Configurations.player = temp_player;
                                     temp_board = copy();
                                     if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                         moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
@@ -776,10 +646,7 @@ public class Board {
                                     temp_y--;
                                     temp_x++;
                                 } else if (temp_y > y) {
-                                    CommonMethods.player = temp_player;
-                                    CommonMethods.castling = temp_castl;
-                                    CommonMethods.white_king_checked = temp_w_k_c;
-                                    CommonMethods.black_king_checked = temp_w_b_c;
+                                    Configurations.player = temp_player;
                                     temp_board = copy();
                                     if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                         moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
@@ -792,104 +659,71 @@ public class Board {
                         case KING:
                             temp_x = x - 1;
                             temp_y = y - 1;
-                            CommonMethods.player = temp_player;
-                            CommonMethods.castling = temp_castl;
-                            CommonMethods.white_king_checked = temp_w_k_c;
-                            CommonMethods.black_king_checked = temp_w_b_c;
+                            Configurations.player = temp_player;
                             temp_board = copy();
                             if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                 moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                             }
                             temp_x = x - 1;
                             temp_y = y + 1;
-                            CommonMethods.player = temp_player;
-                            CommonMethods.castling = temp_castl;
-                            CommonMethods.white_king_checked = temp_w_k_c;
-                            CommonMethods.black_king_checked = temp_w_b_c;
+                            Configurations.player = temp_player;
                             temp_board = copy();
                             if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                 moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                             }
                             temp_x = x - 1;
                             temp_y = y;
-                            CommonMethods.player = temp_player;
-                            CommonMethods.castling = temp_castl;
-                            CommonMethods.white_king_checked = temp_w_k_c;
-                            CommonMethods.black_king_checked = temp_w_b_c;
+                            Configurations.player = temp_player;
                             temp_board = copy();
                             if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                 moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                             }
                             temp_x = x;
                             temp_y = y - 1;
-                            CommonMethods.player = temp_player;
-                            CommonMethods.castling = temp_castl;
-                            CommonMethods.white_king_checked = temp_w_k_c;
-                            CommonMethods.black_king_checked = temp_w_b_c;
+                            Configurations.player = temp_player;
                             temp_board = copy();
                             if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                 moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                             }
                             temp_x = x;
                             temp_y = y + 1;
-                            CommonMethods.player = temp_player;
-                            CommonMethods.castling = temp_castl;
-                            CommonMethods.white_king_checked = temp_w_k_c;
-                            CommonMethods.black_king_checked = temp_w_b_c;
+                            Configurations.player = temp_player;
                             temp_board = copy();
                             if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                 moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                             }
                             temp_x = x + 1;
                             temp_y = y - 1;
-                            CommonMethods.player = temp_player;
-                            CommonMethods.castling = temp_castl;
-                            CommonMethods.white_king_checked = temp_w_k_c;
-                            CommonMethods.black_king_checked = temp_w_b_c;
+                            Configurations.player = temp_player;
                             temp_board = copy();
                             if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                 moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                             }
                             temp_x = x + 1;
                             temp_y = y + 1;
-                            CommonMethods.player = temp_player;
-                            CommonMethods.castling = temp_castl;
-                            CommonMethods.white_king_checked = temp_w_k_c;
-                            CommonMethods.black_king_checked = temp_w_b_c;
+                            Configurations.player = temp_player;
                             temp_board = copy();
                             if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                 moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                             }
                             temp_x = x + 1;
                             temp_y = y;
-                            CommonMethods.player = temp_player;
-                            CommonMethods.castling = temp_castl;
-                            CommonMethods.white_king_checked = temp_w_k_c;
-                            CommonMethods.black_king_checked = temp_w_b_c;
+                            Configurations.player = temp_player;
                             temp_board = copy();
                             if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, temp_y))) {
                                 moves.add(CommonMethods.reverseConvert(x, y, temp_x, temp_y));
                             }
-                            CommonMethods.player = temp_player;
-                            CommonMethods.castling = temp_castl;
-                            CommonMethods.white_king_checked = temp_w_k_c;
-                            CommonMethods.black_king_checked = temp_w_b_c;
+                            Configurations.player = temp_player;
                             temp_board = copy();
                             if ((p.getPiece().getColor() == Color.WHITE && y == 7) || (p.getPiece().getColor() == Color.BLACK && y == 0)) {
                                 temp_x = 2;
-                                CommonMethods.player = temp_player;
-                                CommonMethods.castling = temp_castl;
-                                CommonMethods.white_king_checked = temp_w_k_c;
-                                CommonMethods.black_king_checked = temp_w_b_c;
+                                Configurations.player = temp_player;
                                 temp_board = copy();
                                 if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, y))) {
                                     moves.add(CommonMethods.reverseConvert(x, y, temp_x, y));
                                 }
                                 temp_x = 6;
-                                CommonMethods.player = temp_player;
-                                CommonMethods.castling = temp_castl;
-                                CommonMethods.white_king_checked = temp_w_k_c;
-                                CommonMethods.black_king_checked = temp_w_b_c;
+                                Configurations.player = temp_player;
                                 temp_board = copy();
                                 if (temp_board.handleMove(CommonMethods.reverseConvert(x, y, temp_x, y))) {
                                     moves.add(CommonMethods.reverseConvert(x, y, temp_x, y));
@@ -900,10 +734,7 @@ public class Board {
                 }
             }
         }
-        CommonMethods.player = temp_player;
-        CommonMethods.castling = temp_castl;
-        CommonMethods.white_king_checked = temp_w_k_c;
-        CommonMethods.black_king_checked = temp_w_b_c;
+        Configurations.player = temp_player;
         return moves;
     }
 
