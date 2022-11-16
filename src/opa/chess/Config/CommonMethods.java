@@ -45,24 +45,6 @@ public class CommonMethods {
         return move;
     }
 
-    public static Piece getPieceOnSquare(int sqX, int sqY, ArrayList<Piece> pieces) {
-        for (Piece piece : pieces) {
-            if (piece.getX() == sqX && piece.getY() == sqY) {
-                return piece;
-            }
-        }
-        return null;
-    }
-
-    public static Piece getPieceOnSquare(PieceType Type, Color Color, ArrayList<Piece> pieces) {
-        for (Piece piece : pieces) {
-            if (piece.getType().equals(Type) && piece.getColor() == Color) {
-                return piece;
-            }
-        }
-        return null;
-    }
-
     public static String[] randomMoves(int x) {
         String[] result = new String[x];
         for (int j = 0; j < x; j++) {

@@ -2,7 +2,7 @@ package opa.chess.Models.Pieces;
 
 import opa.chess.Config.CommonMethods;
 import opa.chess.Enums.Color;
-import opa.chess.Enums.Location;
+import opa.chess.Models.Board;
 
 import java.util.ArrayList;
 
@@ -10,12 +10,12 @@ import static opa.chess.Enums.PieceType.ROOK;
 
 public class Rook extends Piece {
 
-    public Rook(Location location, Color color, int x, int y) {
-        super(location, color, x, y, ROOK);
+    public Rook(Color color, int x, int y) {
+        super(color, x, y, ROOK);
     }
 
     @Override
-    public boolean checkMove(int x2, int y2, ArrayList<Piece> pieces) {
+    public boolean checkMove(int x2, int y2, Board board) {
         if (x2 == this.X && y2 == this.Y) { //checks if not moved
             return false;
         }
@@ -24,10 +24,10 @@ public class Rook extends Piece {
         }
         if (y2 != this.Y && x2 == this.X) {
             CommonMethods.en_passant = false;
-            return (!blocked(x2, y2, pieces));
+            return (!blocked(x2, y2, board.getPieces()));
         } else if (y2 == this.Y) {
             CommonMethods.en_passant = false;
-            return (!blocked(x2, y2, pieces));
+            return (!blocked(x2, y2, board.getPieces()));
         }
         return false;
     }
@@ -60,8 +60,54 @@ public class Rook extends Piece {
     }
 
     @Override
+    public int evaluate() {
+        int value = 500;
+        if (color == Color.WHITE /*down*/) {
+            if (Y == 0) {
+                value += 0;
+            } else if (Y == 1) {
+                if (X == 0 || X == 7) {
+                    value += 5;
+                } else {
+                    value += 10;
+                }
+            } else if (Y == 7) {
+                if (X == 3 || X == 4) {
+                    value += 5;
+                } else {
+                    value += 0;
+                }
+            } else if (X == 0 || X == 7) {
+                value -= 5;
+            } else {
+                value += 0;
+            }
+        } else if (Y == 7) {
+            value += 0;
+        } else if (Y == 6) {
+            if (X == 0 || X == 7) {
+                value += 5;
+            } else {
+                value += 10;
+            }
+        } else if (Y == 0) {
+            if (X == 3 || X == 4) {
+                value += 5;
+            } else {
+                value += 0;
+            }
+        } else if (X == 0 || X == 7) {
+            value -= 5;
+        } else {
+            value += 0;
+        }
+
+        return value;
+    }
+
+    @Override
     public Piece clone() {
-        return new Rook(this.location, this.color, this.X, this.Y).setFirstMove(this.firstMove);
+        return new Rook(this.color, this.X, this.Y).setFirstMove(this.firstMove);
     }
 
     @Override

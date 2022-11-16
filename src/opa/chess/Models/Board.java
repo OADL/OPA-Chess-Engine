@@ -2,7 +2,6 @@ package opa.chess.Models;
 
 import opa.chess.Config.CommonMethods;
 import opa.chess.Enums.Color;
-import opa.chess.Enums.Location;
 import opa.chess.Enums.PieceType;
 import opa.chess.Models.Pieces.*;
 
@@ -47,46 +46,46 @@ public class Board {
 
     private void init() {
         for (int i = 0; i < 8; i++) {
-            Piece pawn = new Pawn(Location.DOWN, Color.WHITE, i, 6);//down
+            Piece pawn = new Pawn(Color.WHITE, i, 6);//down
             pieces.add(pawn);
-            pawn = new Pawn(Location.UP, Color.BLACK, i, 1);//up
+            pawn = new Pawn(Color.BLACK, i, 1);//up
             pieces.add(pawn);
         }
         Piece piece;
         //up
-        piece = new Bishop(Location.UP, Color.BLACK, 2, 0);
+        piece = new Bishop(Color.BLACK, 2, 0);
         pieces.add(piece);
-        piece = new Bishop(Location.UP, Color.BLACK, 5, 0);
+        piece = new Bishop(Color.BLACK, 5, 0);
         pieces.add(piece);
-        piece = new Knight(Location.UP, Color.BLACK, 1, 0);
+        piece = new Knight(Color.BLACK, 1, 0);
         pieces.add(piece);
-        piece = new Knight(Location.UP, Color.BLACK, 6, 0);
+        piece = new Knight(Color.BLACK, 6, 0);
         pieces.add(piece);
-        piece = new Rook(Location.UP, Color.BLACK, 0, 0);
+        piece = new Rook(Color.BLACK, 0, 0);
         pieces.add(piece);
-        piece = new Rook(Location.UP, Color.BLACK, 7, 0);
+        piece = new Rook(Color.BLACK, 7, 0);
         pieces.add(piece);
-        piece = new Queen(Location.UP, Color.BLACK, 3, 0);
+        piece = new Queen(Color.BLACK, 3, 0);
         pieces.add(piece);
-        piece = new King(Location.UP, Color.BLACK, 4, 0);
+        piece = new King(Color.BLACK, 4, 0);
         pieces.add(piece);
 
         //down
-        piece = new Bishop(Location.DOWN, Color.WHITE, 2, 7);
+        piece = new Bishop(Color.WHITE, 2, 7);
         pieces.add(piece);
-        piece = new Bishop(Location.DOWN, Color.WHITE, 5, 7);
+        piece = new Bishop(Color.WHITE, 5, 7);
         pieces.add(piece);
-        piece = new Knight(Location.DOWN, Color.WHITE, 1, 7);
+        piece = new Knight(Color.WHITE, 1, 7);
         pieces.add(piece);
-        piece = new Knight(Location.DOWN, Color.WHITE, 6, 7);
+        piece = new Knight(Color.WHITE, 6, 7);
         pieces.add(piece);
-        piece =new Rook(Location.DOWN, Color.WHITE, 0, 7);
+        piece =new Rook(Color.WHITE, 0, 7);
         pieces.add(piece);
-        piece =new Rook(Location.DOWN, Color.WHITE, 7, 7);
+        piece =new Rook(Color.WHITE, 7, 7);
         pieces.add(piece);
-        piece = new Queen(Location.DOWN, Color.WHITE, 3, 7);
+        piece = new Queen(Color.WHITE, 3, 7);
         pieces.add(piece);
-        piece = new King(Location.DOWN, Color.WHITE, 4, 7);
+        piece = new King(Color.WHITE, 4, 7);
         pieces.add(piece);
         update();
     }
@@ -109,41 +108,51 @@ public class Board {
         System.out.println("  a   b   c   d   e   f   g   h");
     }
 
+    private void update() {
+        board = createEmptyBoard();
+        for (Piece piece : pieces) {
+            board[piece.getX()][piece.getY()] = piece.toString();
+        }
+    }
+
+    public ArrayList<Piece> getDead() {
+        return dead;
+    }
+
+    public ArrayList<Piece> getPieces() {
+        return pieces;
+    }
+
     public boolean applyMove(String move) {
         if (move == null || move.length() < 4) {
             return false;
         }
-        char x1 = move.charAt(0);
-        char y1 = move.charAt(1);
-        char x2 = move.charAt(2);
-        char y2 = move.charAt(3);
-        int X1, X2, Y1, Y2;
-        X1 = CommonMethods.convert(x1);
-        Y1 = CommonMethods.convert(y1);
-        X2 = CommonMethods.convert(x2);
-        Y2 = CommonMethods.convert(y2);
+        int X1 = CommonMethods.convert(move.charAt(0)),
+            Y1 = CommonMethods.convert(move.charAt(1)),
+            X2 = CommonMethods.convert(move.charAt(2)),
+            Y2 = CommonMethods.convert(move.charAt(3));
         @SuppressWarnings("unchecked")
         ArrayList<Piece> temp_pieces = (ArrayList<Piece>) pieces.clone(); // temporary changes array list
         @SuppressWarnings("unchecked")
         ArrayList<Piece> temp_dead = (ArrayList<Piece>) dead.clone();// temporary changes array list
-        Piece piece = CommonMethods.getPieceOnSquare(X1, Y1, temp_pieces);
+        Piece piece = findPiece(X1, Y1, temp_pieces);
         if (piece == null) {
             return false;
         }
         if (move.length() == 4) {
-            if (piece.getType() == PieceType.PAWN && (((piece.getLocation()==Location.DOWN) && Y2 == 0) || ((piece.getLocation()==Location.UP) && Y2 == 7))) {//reach end of board without promotion
+            if (piece.getType() == PieceType.PAWN && (((piece.getColor()==Color.WHITE) && Y2 == 0) || ((piece.getColor()==Color.BLACK) && Y2 == 7))) {//reach end of board without promotion
                 return false;
             }
             if ((piece.getColor() == Color.WHITE && CommonMethods.player == 1) || (piece.getColor() == Color.BLACK && CommonMethods.player == 2)) {
-                if (piece.checkMove(X2, Y2, temp_pieces)) {
+                if (piece.checkMove(X2, Y2, this)) {
                     if (piece.isFirstMove()) {
                         if (piece.getType() == PieceType.KING) {
                             if (CommonMethods.castling) {//check castling variable
                                 int rookX = X2 > piece.getX() ? 7 : 0;//get rook's location
-                                Piece rook = CommonMethods.getPieceOnSquare(rookX, Y2, temp_pieces);
+                                Piece rook = findPiece(rookX, Y2, temp_pieces);
                                 Board temp_board = new Board();
                                 temp_board = copy(this,temp_board);
-                                Piece temp_king = CommonMethods.getPieceOnSquare(X1, Y1, temp_board.pieces);
+                                Piece temp_king = findPiece(X1, Y1, temp_board.pieces);
                                 boolean temp_castl = CommonMethods.castling;
                                 boolean temp_enpassant = CommonMethods.en_passant;
                                 if(temp_king != null) {
@@ -179,23 +188,20 @@ public class Board {
                         }
                         piece.setFirstMove(false);
                     }
-                    Piece deadpiece;
                     if (Math.abs(X1 - X2) == 1 && CommonMethods.en_passant) {
                         piece.setX(X2);
                         piece.setY(Y2);
-                        deadpiece = CommonMethods.getPieceOnSquare(X2, Y1, temp_pieces);
+                        applyEatIfAvailable(piece, temp_pieces, temp_dead);
+
                         CommonMethods.en_passant = false;
-                        if (deadpiece != null) {
-                            applyEat(deadpiece, temp_pieces, temp_dead);
-                        }
                         if (CommonMethods.player == 1) {
                             CommonMethods.player = 2;
                         } else {
                             CommonMethods.player = 1;
                         }
-                        if (kingRisked(CommonMethods.getPieceOnSquare(PieceType.KING, piece.getColor(), temp_pieces), temp_pieces)) {
+                        if (kingRisked(findPiece(PieceType.KING, piece.getColor(), temp_pieces), temp_pieces)) {
                             return false;
-                        } else if (kingRisked(CommonMethods.getPieceOnSquare(PieceType.KING, (piece.getColor() == Color.WHITE)? Color.BLACK : Color.WHITE, temp_pieces), temp_pieces)) {
+                        } else if (kingRisked(findPiece(PieceType.KING, (piece.getColor() == Color.WHITE)? Color.BLACK : Color.WHITE, temp_pieces), temp_pieces)) {
                             if (piece.getColor() == Color.BLACK) {
                                 CommonMethods.white_king_checked = true;
                             } else {
@@ -214,15 +220,12 @@ public class Board {
                         return true;
 
                     } else {
-                        deadpiece = piece.canEat(X2, Y2, temp_pieces);
                         piece.setX(X2);
                         piece.setY(Y2);
-                        if (deadpiece != null) {
-                            applyEat(deadpiece, temp_pieces, temp_dead);
-                        }
-                        if (kingRisked(CommonMethods.getPieceOnSquare(PieceType.KING, piece.getColor(), temp_pieces), temp_pieces)) {
+                        applyEatIfAvailable(piece, temp_pieces, temp_dead);
+                        if (kingRisked(findPiece(PieceType.KING, piece.getColor(), temp_pieces), temp_pieces)) {
                             return false;
-                        } else if (kingRisked(CommonMethods.getPieceOnSquare(PieceType.KING, (piece.getColor() == Color.WHITE)? Color.BLACK : Color.WHITE, temp_pieces), temp_pieces)) {
+                        } else if (kingRisked(findPiece(PieceType.KING, (piece.getColor() == Color.WHITE)? Color.BLACK : Color.WHITE, temp_pieces), temp_pieces)) {
                             if (piece.getColor() == Color.BLACK) {
                                 CommonMethods.white_king_checked = true;
                             } else {
@@ -250,7 +253,7 @@ public class Board {
             char p = move.charAt(4);
             if ((piece.getColor() == Color.WHITE && CommonMethods.player == 1) || (piece.getColor() == Color.BLACK && CommonMethods.player == 2)) {
                 if (piece.getType() == PieceType.PAWN) {
-                    if (piece.checkMove(X2, Y2, temp_pieces)) {
+                    if (piece.checkMove(X2, Y2, this)) {
                         if (Y2 == 0 || Y2 == 7) {
                             switch (p) {
                                 case 'p':
@@ -275,15 +278,12 @@ public class Board {
                                     piece.setType(PieceType.BISHOP);
                                     break;
                             }
-                            Piece deadpiece = piece.canEat(X2, Y2, temp_pieces);
-                            if (deadpiece != null) {
-                                applyEat(deadpiece, temp_pieces, temp_dead);
-                            }
                             piece.setX(X2);
                             piece.setY(Y2);
-                            if (kingRisked(CommonMethods.getPieceOnSquare(PieceType.KING, piece.getColor(), temp_pieces), temp_pieces)) {
+                            applyEatIfAvailable(piece, temp_pieces, temp_dead);
+                            if (kingRisked(findPiece(PieceType.KING, piece.getColor(), temp_pieces), temp_pieces)) {
                                 return false;
-                            } else if (kingRisked(CommonMethods.getPieceOnSquare(PieceType.KING, (piece.getColor() == Color.WHITE)? Color.BLACK : Color.WHITE, temp_pieces), temp_pieces)) {
+                            } else if (kingRisked(findPiece(PieceType.KING, (piece.getColor() == Color.WHITE)? Color.BLACK : Color.WHITE, temp_pieces), temp_pieces)) {
                                 if (piece.getColor() == Color.BLACK) {
                                     CommonMethods.white_king_checked = true;
                                 } else {
@@ -313,23 +313,19 @@ public class Board {
         return false;
     }
 
-    private void applyEat(Piece deadpiece, ArrayList<Piece> temp_pieces, ArrayList<Piece> temp_dead) {
-        temp_pieces.remove(deadpiece);
-        deadpiece.setY(-1);
-        deadpiece.setX(-1);
-        temp_dead.add(deadpiece);
-    }
-
-    private void update() {
-        board = createEmptyBoard();
-        for (Piece piece : pieces) {
-            board[piece.getX()][piece.getY()] = piece.toString();
+    private void applyEatIfAvailable(Piece piece, ArrayList<Piece> pieces, ArrayList<Piece> dead) {
+        Piece deadPiece = findPiece(piece.getX(), piece.getY(), pieces);
+        if(deadPiece != null && piece.canEat(deadPiece)) {
+            pieces.remove(deadPiece);
+            deadPiece.setY(-1);
+            deadPiece.setX(-1);
+            dead.add(deadPiece);
         }
     }
 
-    private boolean kingRisked(Piece king, ArrayList<Piece> temp_pieces) {
-        for (int i = 0; i < temp_pieces.size(); i++) {
-            if (temp_pieces.get(i).getColor() != king.getColor() && temp_pieces.get(i).checkMove(king.getX(), king.getY(), temp_pieces)) {
+    private boolean kingRisked(Piece king, ArrayList<Piece> pieces) {
+        for (Piece piece : pieces) {
+            if (piece.getColor() != king.getColor() && piece.checkMove(king.getX(), king.getY(), this)) {
                 return true;
             }
         }
@@ -973,11 +969,30 @@ public class Board {
         return moves;
     }
 
-    public ArrayList<Piece> getDead() {
-        return dead;
+    public Piece findPiece(int sqX, int sqY) {
+        for (Piece piece : pieces) {
+            if (piece.getX() == sqX && piece.getY() == sqY) {
+                return piece;
+            }
+        }
+        return null;
     }
 
-    public ArrayList<Piece> getPieces() {
-        return pieces;
+    private Piece findPiece(int sqX, int sqY, ArrayList<Piece> pieces) {
+        for (Piece piece : pieces) {
+            if (piece.getX() == sqX && piece.getY() == sqY) {
+                return piece;
+            }
+        }
+        return null;
+    }
+
+    private Piece findPiece(PieceType type, Color color, ArrayList<Piece> pieces) {
+        for (Piece piece : pieces) {
+            if (piece.getType().equals(type) && piece.getColor() == color) {
+                return piece;
+            }
+        }
+        return null;
     }
 }

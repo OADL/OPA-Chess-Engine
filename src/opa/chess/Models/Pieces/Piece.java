@@ -1,24 +1,21 @@
 package opa.chess.Models.Pieces;
 
-import opa.chess.Config.CommonMethods;
 import opa.chess.Enums.Color;
-import opa.chess.Enums.Location;
 import opa.chess.Enums.PieceType;
+import opa.chess.Models.Board;
 
 import java.util.ArrayList;
 
 public abstract class Piece {
 
     protected PieceType type;
-    protected Location location; //False Down  True UP
     protected Color color;    //False White True black
     protected boolean firstMove;
     protected int X;
     protected int Y;
 
-    protected Piece(Location location, Color color, int x, int y, PieceType type) {
+    protected Piece(Color color, int x, int y, PieceType type) {
         this.firstMove = true;
-        this.location = location;
         this.color = color;
         this.X = x;
         this.Y = y;
@@ -39,10 +36,6 @@ public abstract class Piece {
 
     public Color getColor() {
         return color;
-    }
-
-    public Location getLocation() {
-        return location;
     }
 
     public boolean isFirstMove() {
@@ -69,11 +62,6 @@ public abstract class Piece {
         return this;
     }
 
-    public Piece setLocation(Location location) {
-        this.location = location;
-        return this;
-    }
-
     public Piece setFirstMove(boolean firstMove) {
         this.firstMove = firstMove;
         return this;
@@ -88,19 +76,15 @@ public abstract class Piece {
         return false;
     }
 
-    public Piece canEat(int destX, int destY, ArrayList<Piece> pieces) {
-        Piece returned = CommonMethods.getPieceOnSquare(destX, destY, pieces);
-        if (returned != null) {
-            if (returned.getColor() != this.color) {
-                return returned;
-            }
-        }
-        return null;
+    public boolean canEat(Piece piece) {
+        return piece.getColor() != this.color;
     }
 
-    public abstract boolean checkMove(int x2, int y2, ArrayList<Piece> pieces);
+    public abstract boolean checkMove(int x2, int y2, Board board);
 
     protected abstract boolean blocked(int x2, int y2, ArrayList<Piece> pieces);
+
+    public abstract int evaluate();
 
     public abstract Piece clone();
 
