@@ -4,9 +4,11 @@ import opa.chess.Config.CommonMethods;
 import opa.chess.Enums.Color;
 import opa.chess.Enums.MoveType;
 import opa.chess.Models.Board;
+import opa.chess.Models.Move;
 import opa.chess.Models.Square;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static opa.chess.Enums.PieceType.KNIGHT;
 
@@ -165,6 +167,28 @@ public class Knight extends Piece {
             }
         }
         return value;
+    }
+
+    @Override
+    public List<Move> nextMoves(Square square, Board board) {
+        List<Move> moves = new ArrayList<>();
+        int x = square.getX();
+        int y = square.getY();
+        Move move = getMove(square, board, x - 1, y + 2);
+        if(move != null) moves.add(move);
+        move = getMove(square, board, x - 2, y - 1);
+        if(move != null) moves.add(move);
+        move = getMove(square, board, x - 2, y + 1);
+        if(move != null) moves.add(move);
+        move = getMove(square, board,  x + 1, y - 2);
+        if(move != null) moves.add(move);
+        move = getMove(square, board, x + 1, y + 2);
+        if(move != null) moves.add(move);
+        move = getMove(square, board, x + 2, y - 1);
+        if(move != null) moves.add(move);
+        move = getMove(square, board, x + 2, y + 1);
+        if(move != null) moves.add(move);
+        return moves;
     }
 
     @Override

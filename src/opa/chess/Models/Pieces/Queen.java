@@ -1,16 +1,16 @@
 package opa.chess.Models.Pieces;
 
-import opa.chess.Config.CommonMethods;
 import opa.chess.Enums.Color;
 import opa.chess.Enums.MoveType;
 import opa.chess.Models.Board;
+import opa.chess.Models.Move;
 import opa.chess.Models.Square;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import static opa.chess.Enums.PieceType.QUEEN;
 
-public class Queen extends Piece {
+public class Queen extends Piece implements StraightPiece,DiagonalPiece {
 
     public Queen(Color color) {
         super(color, QUEEN);
@@ -171,6 +171,15 @@ public class Queen extends Piece {
             }
         }
         return value;
+    }
+
+    @Override
+    public List<Move> nextMoves(Square square, Board board) {
+        List<Move> moves = possibleStraightMoves(true,square,board);
+        moves.addAll(possibleStraightMoves(false,square,board));
+        moves.addAll(possibleDiagonalMoves(true,square,board));
+        moves.addAll(possibleDiagonalMoves(false,square,board));
+        return moves;
     }
 
     @Override

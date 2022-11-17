@@ -3,9 +3,10 @@ package opa.chess.Services;
 import opa.chess.Config.Configurations;
 import opa.chess.Config.Constants;
 import opa.chess.Models.Board;
+import opa.chess.Models.Move;
 
+import javax.swing.*;
 import java.util.Scanner;
-import javax.swing.Timer;
 
 public class UCI {
 
@@ -68,10 +69,10 @@ public class UCI {
         thread = new Thread(() -> {
             Configurations.stop = false;
             timer.start();
-            String move = ai.alphaBeta(Configurations.player, board, Integer.MIN_VALUE, Integer.MAX_VALUE, Configurations.depth);
+            Move move = ai.alphaBeta(Configurations.player, board, Integer.MIN_VALUE, Integer.MAX_VALUE, Configurations.depth);
             timer.stop();
             Configurations.stop = false;
-            System.out.println("bestmove " + move);
+            System.out.println("bestmove " + move.toString());
         });
         thread.start();
     }

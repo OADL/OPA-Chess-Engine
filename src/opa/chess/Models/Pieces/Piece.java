@@ -4,9 +4,12 @@ import opa.chess.Enums.Color;
 import opa.chess.Enums.MoveType;
 import opa.chess.Enums.PieceType;
 import opa.chess.Models.Board;
+import opa.chess.Models.Move;
 import opa.chess.Models.Square;
 
-import java.util.ArrayList;
+import java.util.List;
+
+import static opa.chess.Config.CommonMethods.isOutOfBounds;
 
 public abstract class Piece {
 
@@ -63,6 +66,18 @@ public abstract class Piece {
     };
 
     public abstract int evaluate(Square square);
+
+    public abstract List<Move> nextMoves(Square square, Board board);
+
+    protected Move getMove(Square square, Board board, int newX, int newY) {
+        if(isOutOfBounds(newX,newY)) return null;
+        Board tempBoard = board.copy();
+        Move move = new Move(square.getPiece(), square, board.findSquare(newX, newY), MoveType.NORMAL);
+        if (tempBoard.processMove(move)) {
+            return move;
+        }
+        return null;
+    }
 
     public abstract Piece clone();
 

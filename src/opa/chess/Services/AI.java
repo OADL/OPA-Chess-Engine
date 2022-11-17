@@ -3,15 +3,17 @@ package opa.chess.Services;
 import opa.chess.Config.Configurations;
 import opa.chess.Enums.Color;
 import opa.chess.Models.Board;
+import opa.chess.Models.Move;
 import opa.chess.Models.Pieces.Piece;
 import opa.chess.Models.Square;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class AI {
 
-    public String alphaBeta(int player, Board b, int alpha, int beta, int depth) {
-        String best_move = null;
+    public Move alphaBeta(int player, Board b, int alpha, int beta, int depth) {
+        Move best_move = null;
         if (Thread.currentThread().isInterrupted()) {
             return best_move;
         }
@@ -20,26 +22,26 @@ public class AI {
         }
         int temp_player = Configurations.player;
         Configurations.player = player;
-        ArrayList<String> moves = b.nextMoves(player);
+        List<Move> moves = b.nextMoves(player);
         Configurations.player = temp_player;
         if (moves.isEmpty()) {
             return null;
         }
-        for (String m : moves) {
+        for (Move move : moves) {
             Configurations.player = temp_player;
             Board temp_board = b.copy();
             if (best_move == null) {
-                best_move = m;
+                best_move = move;
             }
             int score;
             Configurations.player = player;
-            temp_board.handleMove(m);
+            temp_board.handleMove(move);
             Configurations.player = temp_player;
             if (Configurations.player == player) {
                 if (depth <= 0) {
                     score = evaluate(temp_board, player);
                 } else {
-                    String returned;
+                    Move returned;
                     if (player == 1) {
                         returned = alphaBeta(2, temp_board, alpha, beta, depth - 1);
                         Configurations.player = 2;
@@ -56,23 +58,23 @@ public class AI {
                 }
                 if ((Configurations.player == 2 && b.isKingChecked(Color.WHITE)) || (Configurations.player == 1 && b.isKingChecked(Color.BLACK))) {
                     Configurations.player = temp_player;
-                    best_move = m;
+                    best_move = move;
                     return best_move;
                 }
                 if (score > alpha) {
-                    best_move = m;
+                    best_move = move;
                     alpha = score;
                 }
                 if (beta <= alpha) {
                     Configurations.player = temp_player;
-                    best_move = m;
+                    best_move = move;
                     return best_move;
                 }
             } else {
                 if (depth <= 0) {
                     score = evaluate(temp_board, player);
                 } else {
-                    String returned;
+                    Move returned;
                     if (player == 1) {
                         returned = alphaBeta(2, temp_board, alpha, beta, depth - 1);
                         Configurations.player = 2;
@@ -89,11 +91,11 @@ public class AI {
                 }
                 if ((Configurations.player == 1 && b.isKingChecked(Color.WHITE)) || (Configurations.player == 2 && b.isKingChecked(Color.BLACK))) {
                     Configurations.player = temp_player;
-                    best_move = m;
+                    best_move = move;
                     return best_move;
                 }
                 if (score < beta) {
-                    best_move = m;
+                    best_move = move;
                     beta = score;
                 }
                 if (beta <= alpha) {

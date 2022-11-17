@@ -3,19 +3,20 @@ package opa.chess;
 import opa.chess.Config.Configurations;
 import opa.chess.Enums.Color;
 import opa.chess.Models.Board;
+import opa.chess.Models.Move;
 import opa.chess.Services.AI;
 import opa.chess.Services.UCI;
 
+import javax.swing.*;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.io.FileNotFoundException;
-import javax.swing.Timer;
 
-public class Game {
+public class MainMenu {
 
     private final AI ai;
     private final Timer timer;
@@ -23,7 +24,7 @@ public class Game {
     private ArrayList<String> moves = new ArrayList<>();
     private boolean Quit = false;
 
-    public Game() {
+    public MainMenu() {
         ai = new AI();
         timer = new Timer(29000, arg0 -> Configurations.stop = true);
         timer.setRepeats(false);
@@ -265,7 +266,7 @@ public class Game {
         Configurations.stop = false;
         long startTime = System.nanoTime();
         timer.start();
-        String ai_move = ai.alphaBeta(Configurations.player, board, Integer.MIN_VALUE, Integer.MAX_VALUE, Configurations.depth);
+        Move ai_move = ai.alphaBeta(Configurations.player, board, Integer.MIN_VALUE, Integer.MAX_VALUE, Configurations.depth);
         timer.stop();
         if (ai_move != null) {
             System.out.println("> AI Played: " + ai_move);
@@ -276,7 +277,7 @@ public class Game {
             long stopTime = System.nanoTime();
             float elapsedTime = (stopTime-startTime)/1000000000F;
             System.out.println("> Elapsed time: "+ elapsedTime);
-            moves.add(ai_move);
+            moves.add(ai_move.toString());
             board.print();
             System.out.println("===================================");
         } else {
@@ -312,8 +313,7 @@ public class Game {
     }
 
     private boolean isGameFinished() {
-        ArrayList<String> AvailableMoves = board.nextMoves(Configurations.player);
-        if (AvailableMoves.isEmpty()) {
+        if (board.nextMoves(Configurations.player).isEmpty()) {
             if (Configurations.player == 1 && board.isKingChecked(Color.WHITE)) {
                 System.out.println("   ==||Checkmate Black Won||==");
             } else if (Configurations.player == 1 && !board.isKingChecked(Color.WHITE)) {

@@ -4,9 +4,14 @@ import opa.chess.Config.CommonMethods;
 import opa.chess.Enums.Color;
 import opa.chess.Enums.MoveType;
 import opa.chess.Models.Board;
+import opa.chess.Models.Move;
 import opa.chess.Models.Square;
 
-import static opa.chess.Enums.PieceType.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import static opa.chess.Enums.PieceType.KING;
+import static opa.chess.Enums.PieceType.ROOK;
 
 public class King extends Piece {
 
@@ -145,6 +150,36 @@ public class King extends Piece {
             }
         }
         return value;
+    }
+
+    @Override
+    public List<Move> nextMoves(Square square, Board board) {
+        List<Move> moves = new ArrayList<>();
+        int x = square.getX();
+        int y = square.getY();
+        Move move = getMove(square, board, x - 1, y - 1);
+        if(move != null) moves.add(move);
+        move = getMove(square, board, x - 1, y + 1);
+        if(move != null) moves.add(move);
+        move = getMove(square, board, x - 1, y);
+        if(move != null) moves.add(move);
+        move = getMove(square, board, x, y - 1);
+        if(move != null) moves.add(move);
+        move = getMove(square, board, x, y + 1);
+        if(move != null) moves.add(move);
+        move = getMove(square, board, x + 1, y - 1);
+        if(move != null) moves.add(move);
+        move = getMove(square, board, x + 1, y + 1);
+        if(move != null) moves.add(move);
+        move = getMove(square, board, x + 1, y);
+        if(move != null) moves.add(move);
+        if ((square.getPiece().getColor() == Color.WHITE && y == 7) || (square.getPiece().getColor() == Color.BLACK && y == 0)) {
+            move = getMove(square, board, 2, y);
+            if(move != null) moves.add(move);
+            move = getMove(square, board, 6, y);
+            if(move != null) moves.add(move);
+        }
+        return moves;
     }
 
     @Override

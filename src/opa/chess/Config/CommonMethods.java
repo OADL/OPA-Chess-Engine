@@ -1,12 +1,7 @@
 package opa.chess.Config;
 
-import opa.chess.Enums.Color;
-import opa.chess.Enums.PieceType;
-import opa.chess.Models.Pieces.Piece;
 import opa.chess.Models.Square;
 
-import javax.swing.*;
-import java.util.ArrayList;
 import java.util.Random;
 
 public class CommonMethods {
@@ -61,6 +56,14 @@ public class CommonMethods {
         return result;
     }
 
+    public static void switchPlayer() {
+        if (Configurations.player == 1) {
+            Configurations.player = 2;
+        } else {
+            Configurations.player = 1;
+        }
+    }
+
     public static Square[][] createEmptyBoard() {
         Square[][] squares = new Square[8][8];
         for (int i = 0; i < 8; i++) {
@@ -69,5 +72,9 @@ public class CommonMethods {
             }
         }
         return squares;
+    }
+
+    public static boolean isOutOfBounds(int x, int y) {
+        return (x > 7 || x < 0 || y > 7 || y < 0);
     }
 }

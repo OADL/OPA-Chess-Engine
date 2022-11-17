@@ -3,16 +3,39 @@ package opa.chess.Models.Pieces;
 import opa.chess.Config.CommonMethods;
 import opa.chess.Enums.Color;
 import opa.chess.Enums.MoveType;
+import opa.chess.Enums.PieceType;
 import opa.chess.Models.Board;
 import opa.chess.Models.Move;
 import opa.chess.Models.Square;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static opa.chess.Config.CommonMethods.isOutOfBounds;
 import static opa.chess.Enums.PieceType.PAWN;
 
 public class Pawn extends Piece {
 
     public Pawn(Color color) {
         super(color, PAWN);
+    }
+
+    private boolean isEnPassantMove(Square source, Square destination, Board board) {
+        Square adjSquare = board.findSquare(destination.getX(), source.getY());
+        Move lastMove = board.getLastMove();
+        if (adjSquare != null && adjSquare.getPiece() != null && lastMove != null) {
+            return adjSquare.getPiece().getType() == PAWN
+                    && adjSquare.equals(lastMove.getDestination())
+                    && adjSquare.getPiece().equals(lastMove.getPiece())
+                    && Math.abs(lastMove.getSource().getY() - lastMove.getDestination().getY()) == 2
+                    && adjSquare.getPiece().getColor() != this.color;
+        }
+        return false;
+    }
+
+    private boolean isDiagonalEat(Square destination, Board board) {
+        Piece pieceToEat = board.findSquare(destination.getX(), destination.getY()).getPiece();
+        return pieceToEat != null && canEat(pieceToEat); //check if an opponents piece can be eaten by this move
     }
 
     @Override
@@ -70,24 +93,6 @@ public class Pawn extends Piece {
             }
         }
         return false;
-    }
-
-    private boolean isEnPassantMove(Square source, Square destination, Board board) {
-        Square adjSquare = board.findSquare(destination.getX(), source.getY());
-        Move lastMove = board.getLastMove();
-        if (adjSquare != null && adjSquare.getPiece() != null && lastMove != null) {
-            return adjSquare.getPiece().getType() == PAWN
-                    && adjSquare.equals(lastMove.getDestination())
-                    && adjSquare.getPiece().equals(lastMove.getPiece())
-                    && Math.abs(lastMove.getSource().getY() - lastMove.getDestination().getY()) == 2
-                    && adjSquare.getPiece().getColor() != this.color;
-        }
-        return false;
-    }
-
-    private boolean isDiagonalEat(Square destination, Board board) {
-        Piece pieceToEat = board.findSquare(destination.getX(), destination.getY()).getPiece();
-        return pieceToEat != null && canEat(pieceToEat); //check if an opponents piece can be eaten by this move
     }
 
     @Override
@@ -185,6 +190,54 @@ public class Pawn extends Piece {
             }
         }
         return value;
+    }
+
+    @Override
+    public List<Move> nextMoves(Square square, Board board) {
+        List<Move> moves = new ArrayList<>();
+        int tempY;
+        int x = square.getX();
+        int y = square.getY();
+        if (square.getPiece().getColor() == Color.WHITE) {
+            tempY = y - 1;
+            moves.addAll(getNormalStepMoves(square, board, x, tempY, 0));
+            moves.addAll(getNormalStepMoves(square, board, x - 1, tempY, 0));
+            moves.addAll(getNormalStepMoves(square, board, x + 1, tempY, 0));
+
+            Move move = getMove(square, board, x, y - 2);
+            if(move != null) moves.add(move);
+        } else {
+            tempY = y + 1;
+            moves.addAll(getNormalStepMoves(square, board, x, tempY, 7));
+            moves.addAll(getNormalStepMoves(square, board, x - 1, tempY, 7));
+            moves.addAll(getNormalStepMoves(square, board, x + 1, tempY, 7));
+
+            Move move = getMove(square, board, x, y + 2);
+            if(move != null) moves.add(move);
+        }
+        return moves;
+    }
+
+    private List<Move> getNormalStepMoves(Square square, Board board, int newX, int newY, int endOfBoard) {
+        Board tempBoard = board.copy();
+        List<Move> moves = new ArrayList<>();
+        if(isOutOfBounds(newX,newY)) return moves;
+        Move move = new Move(square.getPiece(), square, board.findSquare(newX, newY), MoveType.NORMAL);
+        if (newY == endOfBoard) {
+            move = new Move(square.getPiece(), square, board.findSquare(newX, newY), MoveType.PROMOTION, PieceType.QUEEN);
+            if (tempBoard.processMove(move)) {
+                moves.add(move);
+                move = new Move(square.getPiece(), square, board.findSquare(newX, newY), MoveType.PROMOTION, PieceType.KNIGHT);
+                moves.add(move);
+                move = new Move(square.getPiece(), square, board.findSquare(newX, newY), MoveType.PROMOTION, PieceType.BISHOP);
+                moves.add(move);
+                move = new Move(square.getPiece(), square, board.findSquare(newX, newY), MoveType.PROMOTION, PieceType.ROOK);
+                moves.add(move);
+            }
+        }else if (tempBoard.processMove(move)) {
+            moves.add(move);
+        }
+        return moves;
     }
 
     @Override
